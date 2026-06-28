@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Driver Neo4j para browser -->
+    <script src="https://cdn.jsdelivr.net/npm/neo4j-driver@5.15.0/lib/browser/neo4j-web.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -106,6 +108,53 @@
         }
         .btn-glow {
             box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        /* Status de conexão */
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.online {
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+        .status-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+        }
+        .status-dot.connecting {
+            background: #fbbf24;
+            box-shadow: 0 0 8px #fbbf24;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
         /* cards dashboard */
         .stats-grid {
@@ -240,6 +289,7 @@
             width: 72%;
             background: linear-gradient(90deg, #fbbf24, #f59e0b);
             border-radius: 10px;
+            transition: width 0.5s ease;
         }
         .level-badge {
             font-size: 0.8rem;
@@ -324,7 +374,7 @@
         /* responsivo */
         @media (max-width: 640px) {
             .header { flex-direction: column; align-items: stretch; }
-            .user-area { justify-content: space-between; }
+            .user-area { justify-content: space-between; flex-wrap: wrap; }
             .schedule-item { flex-direction: column; align-items: start; gap: 10px; }
             .form-card { flex-direction: column; align-items: stretch; }
             .btn-add { margin-left: 0; justify-content: center; }
@@ -337,6 +387,47 @@
             margin-top: 1rem;
             color: #d1dbf5;
             font-weight: 500;
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            background: rgba(20, 27, 43, 0.95);
+            border: 1px solid #2a3652;
+        }
+        .toast i {
+            margin-right: 8px;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: #fbbf24;
+            animation: spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .sync-btn {
+            background: #2a3349;
+            border: 1px solid #3d4863;
+            color: #e8edf5;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-btn:hover {
+            background: #3d4863;
         }
     </style>
 </head>
@@ -349,12 +440,19 @@
             TimeQuest
         </div>
         <div class="user-area">
+            <div class="connection-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Conectando...</span>
+            </div>
+            <button class="sync-btn" id="syncBtn" title="Sincronizar com Neo4j">
+                <i class="fas fa-sync"></i> Sincronizar
+            </button>
             <div class="user-badge">
                 <i class="fas fa-user-astronaut"></i>
                 <span id="userNameDisplay">Aventureiro</span>
-                <span class="level-badge"><i class="fas fa-star"></i> Nv. <span id="levelDisplay">3</span></span>
+                <span class="level-badge"><i class="fas fa-star"></i> Nv. <span id="levelDisplay">1</span></span>
             </div>
-            <button class="btn btn-outline" id="resetUserBtn"><i class="fas fa-rotate"></i> Nova jornada</button>
+            <button class="btn btn-outline" id="resetUserBtn"><i class="fas fa-rotate"></i> Reset</button>
         </div>
     </header>
 
@@ -364,15 +462,19 @@
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><div class="stat-number" id="xpCount">0</div><div class="stat-label">XP total</div></div>
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-trophy"></i></div><div class="stat-number" id="streakCount">0</div><div class="stat-label">Dias ativos</div></div>
     </div>
-    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:72%"></div></div>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
 
     <!-- FORMULÁRIO -->
     <div class="form-card">
         <div class="form-group">
             <label><i class="far fa-calendar-alt"></i> Dia</label>
             <select id="daySelect">
-                <option value="Segunda">Segunda</option><option value="Terça">Terça</option><option value="Quarta">Quarta</option>
-                <option value="Quinta">Quinta</option><option value="Sexta">Sexta</option><option value="Sábado">Sábado</option>
+                <option value="Segunda">Segunda</option>
+                <option value="Terça">Terça</option>
+                <option value="Quarta">Quarta</option>
+                <option value="Quinta">Quinta</option>
+                <option value="Sexta">Sexta</option>
+                <option value="Sábado">Sábado</option>
                 <option value="Domingo">Domingo</option>
             </select>
         </div>
@@ -390,35 +492,31 @@
     <!-- LISTA DE HORÁRIOS -->
     <div class="section-title"><i class="fas fa-list-check"></i> Seus horários</div>
     <div id="scheduleList" class="schedule-grid">
-        <!-- itens serão injetados via JS -->
-        <div class="empty-state"><i class="far fa-clock"></i><p>Nenhum horário cadastrado ainda.</p></div>
+        <div class="empty-state"><i class="far fa-clock"></i><p>Carregando...</p></div>
     </div>
 
-    <!-- TOAST (mensagem) -->
+    <!-- TOAST -->
     <div id="toastMessage" class="toast" style="display: none;"></div>
 </div>
 
 <script>
-    // --------------------- CONFIG NEO4J (simulado para demonstração) ---------------------
-    // Para usar com Neo4j real, descomente e configure a URL/credenciais.
-    // Neste exemplo, usamos localStorage + um "banco em memória" simulando Neo4j.
-    // Mas a estrutura está pronta para conectar com o driver neo4j oficial.
-    
-    // const NEO4J_URI = 'bolt://localhost:7687';
-    // const NEO4J_USER = 'neo4j';
-    // const NEO4J_PASSWORD = 'password';
+    // ==================== CONFIGURAÇÃO NEO4J AURA ====================
+    const NEO4J_URI = 'neo4j+s://2fa4db6b.databases.neo4j.io';
+    const NEO4J_USERNAME = 'neo4j';
+    const NEO4J_PASSWORD = 'p2vNmWMfjESq3xSjJpygJNJh9U4SFkxBaw1AShw05qs';
+    const NEO4J_DATABASE = 'neo4j';
 
-    // Estado da aplicação (simula dados do Neo4j)
+    // ==================== ESTADO DA APLICAÇÃO ====================
     let state = {
-        user: { name: 'Aventureiro', level: 3, xp: 180, streak: 5 },
-        schedules: [
-            { id: 1, day: 'Segunda', time: '09:00', activity: 'Estudar JavaScript' },
-            { id: 2, day: 'Terça', time: '14:30', activity: 'Projeto pessoal' },
-            { id: 3, day: 'Quarta', time: '20:00', activity: 'Leitura' },
-        ]
+        user: { name: 'Aventureiro', level: 1, xp: 0, streak: 0 },
+        schedules: []
     };
 
-    // Elementos DOM
+    let driver = null;
+    let neo4jConnected = false;
+    let isLoading = false;
+
+    // ==================== ELEMENTOS DOM ====================
     const scheduleListEl = document.getElementById('scheduleList');
     const totalTasksEl = document.getElementById('totalTasks');
     const xpCountEl = document.getElementById('xpCount');
@@ -426,29 +524,208 @@
     const xpFillEl = document.getElementById('xpFill');
     const levelDisplayEl = document.getElementById('levelDisplay');
     const userNameDisplay = document.getElementById('userNameDisplay');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const toastMessage = document.getElementById('toastMessage');
 
-    // Função para salvar no "banco" (localStorage + simulação Neo4j)
+    // ==================== CONEXÃO NEO4J ====================
+    async function connectNeo4j() {
+        try {
+            setStatus('connecting', 'Conectando...');
+            
+            // Verificar se o driver está disponível
+            if (typeof neo4j === 'undefined') {
+                throw new Error('Driver Neo4j não carregado');
+            }
+
+            driver = neo4j.driver(
+                NEO4J_URI,
+                neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD),
+                {
+                    database: NEO4J_DATABASE,
+                    connectionTimeout: 30000,
+                    maxConnectionLifetime: 3 * 60 * 60 * 1000,
+                    maxConnectionPoolSize: 50,
+                    connectionAcquisitionTimeout: 60000
+                }
+            );
+
+            // Verificar conectividade
+            await driver.verifyConnectivity();
+            neo4jConnected = true;
+            setStatus('online', 'Conectado');
+            console.log('✅ Conectado ao Neo4j AuraDB com sucesso!');
+            return true;
+        } catch (error) {
+            console.error('❌ Erro ao conectar Neo4j:', error.message);
+            neo4jConnected = false;
+            setStatus('offline', 'Offline');
+            showToast('⚠️ Falha na conexão com Neo4j. Usando localStorage.');
+            return false;
+        }
+    }
+
+    function setStatus(status, text) {
+        statusDot.className = 'status-dot ' + status;
+        statusText.textContent = text;
+    }
+
+    // ==================== OPERAÇÕES NEO4J ====================
+    async function loadFromNeo4j() {
+        if (!neo4jConnected || !driver) {
+            return false;
+        }
+
+        isLoading = true;
+        const session = driver.session({ database: NEO4J_DATABASE });
+        
+        try {
+            // 1. Buscar usuário
+            const userResult = await session.run(
+                `MATCH (u:User) 
+                 RETURN u.name as name, u.level as level, u.xp as xp, u.streak as streak 
+                 LIMIT 1`
+            );
+
+            if (userResult.records.length === 0) {
+                // Criar usuário padrão
+                await session.run(
+                    `CREATE (u:User {name: 'Aventureiro', level: 1, xp: 0, streak: 0})`
+                );
+                state.user = { name: 'Aventureiro', level: 1, xp: 0, streak: 0 };
+                console.log('👤 Usuário criado no Neo4j');
+            } else {
+                const record = userResult.records[0];
+                state.user = {
+                    name: record.get('name'),
+                    level: neo4j.isInt(record.get('level')) ? record.get('level').toNumber() : record.get('level'),
+                    xp: neo4j.isInt(record.get('xp')) ? record.get('xp').toNumber() : record.get('xp'),
+                    streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak')
+                };
+                console.log('👤 Usuário carregado:', state.user);
+            }
+
+            // 2. Buscar horários do usuário
+            const schedulesResult = await session.run(
+                `MATCH (u:User)-[:HAS_SCHEDULE]->(s:Schedule)
+                 RETURN s.id as id, s.day as day, s.time as time, s.activity as activity
+                 ORDER BY s.day`
+            );
+
+            state.schedules = schedulesResult.records.map(record => ({
+                id: neo4j.isInt(record.get('id')) ? record.get('id').toNumber() : record.get('id'),
+                day: record.get('day'),
+                time: record.get('time'),
+                activity: record.get('activity')
+            }));
+
+            console.log(`📋 ${state.schedules.length} horários carregados`);
+            return true;
+
+        } catch (error) {
+            console.error('Erro ao carregar dados do Neo4j:', error);
+            showToast('❌ Erro ao carregar dados: ' + error.message);
+            return false;
+        } finally {
+            await session.close();
+            isLoading = false;
+        }
+    }
+
+    async function saveToNeo4j() {
+        if (!neo4jConnected || !driver) {
+            console.warn('Neo4j não conectado. Salvando apenas localmente.');
+            return false;
+        }
+
+        const session = driver.session({ database: NEO4J_DATABASE });
+        
+        try {
+            // 1. Atualizar usuário
+            await session.run(
+                `MATCH (u:User)
+                 SET u.name = $name, u.level = $level, u.xp = $xp, u.streak = $streak`,
+                {
+                    name: state.user.name,
+                    level: state.user.level,
+                    xp: state.user.xp,
+                    streak: state.user.streak
+                }
+            );
+
+            // 2. Limpar horários antigos
+            await session.run(
+                `MATCH (u:User)-[r:HAS_SCHEDULE]->(s:Schedule)
+                 DELETE r, s`
+            );
+
+            // 3. Criar novos horários
+            for (const s of state.schedules) {
+                await session.run(
+                    `MATCH (u:User)
+                     CREATE (s:Schedule {id: $id, day: $day, time: $time, activity: $activity})
+                     CREATE (u)-[:HAS_SCHEDULE]->(s)`,
+                    {
+                        id: s.id,
+                        day: s.day,
+                        time: s.time,
+                        activity: s.activity
+                    }
+                );
+            }
+
+            console.log('💾 Dados salvos no Neo4j com sucesso!');
+            return true;
+
+        } catch (error) {
+            console.error('Erro ao salvar no Neo4j:', error);
+            showToast('❌ Erro ao salvar: ' + error.message);
+            return false;
+        } finally {
+            await session.close();
+        }
+    }
+
+    // ==================== FUNÇÕES DE ESTADO ====================
     function saveState() {
+        // Sempre salva no localStorage (fallback)
         localStorage.setItem('timequest_state', JSON.stringify(state));
-        // Se estivesse usando Neo4j, aqui faríamos uma query Cypher para sincronizar.
-        // Exemplo: 
-        // await session.run('MERGE (u:User {id: $id}) SET u.xp = $xp, u.level = $level ...', {...})
-        // E para schedules: MATCH (u)-[:HAS_SCHEDULE]->(s:Schedule) ...
+        
+        // Tenta salvar no Neo4j
+        if (neo4jConnected) {
+            saveToNeo4j().catch(err => {
+                console.error('Erro ao sincronizar com Neo4j:', err);
+            });
+        }
+        
         render();
     }
 
-    function loadState() {
+    async function loadState() {
+        // Tenta carregar do Neo4j primeiro
+        if (neo4jConnected) {
+            const loaded = await loadFromNeo4j();
+            if (loaded) {
+                render();
+                return;
+            }
+        }
+        
+        // Fallback para localStorage
         const saved = localStorage.getItem('timequest_state');
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
                 state = parsed;
-            } catch (e) { /* fallback */ }
+                console.log('📦 Dados carregados do localStorage');
+            } catch (e) {
+                console.warn('Erro ao parsear localStorage:', e);
+            }
         }
         render();
     }
 
-    // Renderiza toda a UI
+    // ==================== RENDER ====================
     function render() {
         // Atualiza stats
         const total = state.schedules.length;
@@ -458,19 +735,27 @@
         levelDisplayEl.textContent = state.user.level;
         userNameDisplay.textContent = state.user.name;
 
-        // XP bar (exemplo: level 1 = 100xp, level 2 = 200, etc)
+        // XP bar
         const xpNeeded = state.user.level * 100;
         const xpProgress = Math.min((state.user.xp % xpNeeded) / xpNeeded * 100, 100);
         xpFillEl.style.width = Math.max(4, xpProgress) + '%';
 
         // Lista de horários
         if (total === 0) {
-            scheduleListEl.innerHTML = `<div class="empty-state"><i class="far fa-clock"></i><p>Nenhum horário cadastrado ainda.</p></div>`;
+            scheduleListEl.innerHTML = `
+                <div class="empty-state">
+                    <i class="far fa-clock"></i>
+                    <p>Nenhum horário cadastrado ainda.</p>
+                    <p style="font-size:0.8rem;margin-top:8px;color:#4a5a7a;">
+                        <i class="fas fa-plus-circle"></i> Adicione seu primeiro horário!
+                    </p>
+                </div>
+            `;
             return;
         }
 
         let html = '';
-        state.schedules.forEach((item, index) => {
+        state.schedules.forEach((item) => {
             html += `
                 <div class="schedule-item" data-id="${item.id}">
                     <div class="schedule-info">
@@ -479,8 +764,12 @@
                         <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
                     </div>
                     <div class="schedule-actions">
-                        <button class="btn-icon" onclick="completeSchedule(${item.id})" title="Concluir +XP"><i class="fas fa-check-circle"></i></button>
-                        <button class="btn-icon danger" onclick="deleteSchedule(${item.id})" title="Remover"><i class="fas fa-trash-alt"></i></button>
+                        <button class="btn-icon" onclick="completeSchedule(${item.id})" title="Concluir +XP">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                        <button class="btn-icon danger" onclick="deleteSchedule(${item.id})" title="Remover">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 </div>
             `;
@@ -488,17 +777,17 @@
         scheduleListEl.innerHTML = html;
     }
 
-    // ----- AÇÕES (com gamificação) -----
+    // ==================== AÇÕES ====================
     function addSchedule(day, time, activity) {
         if (!day || !time || !activity) {
-            showToast('Preencha todos os campos!');
+            showToast('⚠️ Preencha todos os campos!');
             return;
         }
+        
         const newId = Date.now();
         state.schedules.push({ id: newId, day, time, activity });
-        // Bônus XP ao adicionar (gamificação)
         addXP(15);
-        showToast(`📅 "${activity}" adicionado! +15 XP`);
+        showToast(`✅ "${activity}" adicionado! +15 XP`);
         saveState();
     }
 
@@ -507,7 +796,6 @@
         if (index !== -1) {
             const removed = state.schedules[index];
             state.schedules.splice(index, 1);
-            // penalidade ou apenas remover
             showToast(`🗑️ "${removed.activity}" removido.`);
             saveState();
         }
@@ -516,29 +804,28 @@
     function completeSchedule(id) {
         const item = state.schedules.find(s => s.id === id);
         if (!item) return;
-        // Gamificação: ganha XP e aumenta streak
+        
         addXP(30);
         state.user.streak += 1;
-        // Remove da lista (ou poderia manter como concluído, mas vamos remover para simular conclusão)
+        
         const index = state.schedules.findIndex(s => s.id === id);
         if (index !== -1) state.schedules.splice(index, 1);
-        showToast(`✅ "${item.activity}" concluído! +30 XP, streak +1`);
+        
+        showToast(`🎉 "${item.activity}" concluído! +30 XP, streak +1`);
         saveState();
     }
 
     function addXP(amount) {
         state.user.xp += amount;
-        // Subir de nível a cada 100 XP (simples)
         while (state.user.xp >= (state.user.level * 100)) {
             state.user.xp -= state.user.level * 100;
             state.user.level += 1;
-            showToast(`🎉 UP! Você alcançou o nível ${state.user.level}!`);
+            showToast(`🎊 UP! Você alcançou o nível ${state.user.level}!`);
         }
     }
 
-    // Reset do usuário
     function resetUser() {
-        if (confirm('Deseja reiniciar sua jornada? Todos os horários e XP serão resetados.')) {
+        if (confirm('⚠️ Deseja reiniciar sua jornada? Todos os dados serão perdidos!')) {
             state.user = { name: 'Aventureiro', level: 1, xp: 0, streak: 0 };
             state.schedules = [];
             showToast('🔄 Jornada reiniciada. Boa sorte!');
@@ -546,16 +833,37 @@
         }
     }
 
-    // Toast
-    function showToast(msg) {
-        const el = document.getElementById('toastMessage');
-        el.textContent = msg;
-        el.style.display = 'block';
-        clearTimeout(el._timeout);
-        el._timeout = setTimeout(() => { el.style.display = 'none'; }, 3000);
+    async function syncWithNeo4j() {
+        if (!neo4jConnected) {
+            showToast('⚠️ Neo4j não conectado. Reconectando...');
+            await connectNeo4j();
+            if (neo4jConnected) {
+                await loadState();
+                showToast('✅ Sincronizado com Neo4j!');
+            } else {
+                showToast('❌ Falha ao conectar com Neo4j');
+            }
+            return;
+        }
+
+        showToast('🔄 Sincronizando com Neo4j...');
+        await saveToNeo4j();
+        await loadFromNeo4j();
+        render();
+        showToast('✅ Sincronização concluída!');
     }
 
-    // Event listeners
+    // ==================== TOAST ====================
+    function showToast(msg) {
+        toastMessage.innerHTML = msg;
+        toastMessage.style.display = 'block';
+        clearTimeout(toastMessage._timeout);
+        toastMessage._timeout = setTimeout(() => {
+            toastMessage.style.display = 'none';
+        }, 4000);
+    }
+
+    // ==================== EVENT LISTENERS ====================
     document.getElementById('addScheduleBtn').addEventListener('click', () => {
         const day = document.getElementById('daySelect').value;
         const time = document.getElementById('timeInput').value;
@@ -564,51 +872,50 @@
     });
 
     document.getElementById('resetUserBtn').addEventListener('click', resetUser);
+    document.getElementById('syncBtn').addEventListener('click', syncWithNeo4j);
 
-    // Inicializa
-    loadState();
+    // Enter key no input de atividade
+    document.getElementById('activityInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('addScheduleBtn').click();
+        }
+    });
+
+    // ==================== INICIALIZAÇÃO ====================
+    async function init() {
+        try {
+            // Conectar ao Neo4j
+            await connectNeo4j();
+            
+            // Carregar dados
+            await loadState();
+            
+            // Se conectado ao Neo4j, sincronizar periodicamente
+            if (neo4jConnected) {
+                setInterval(() => {
+                    if (!isLoading) {
+                        saveToNeo4j().catch(() => {});
+                    }
+                }, 30000); // Sync a cada 30 segundos
+            }
+        } catch (error) {
+            console.error('Erro na inicialização:', error);
+            showToast('⚠️ Erro ao iniciar: ' + error.message);
+        }
+    }
+
+    // Inicializar quando a página carregar
+    document.addEventListener('DOMContentLoaded', init);
 
     // Expor funções para onclick (global)
     window.deleteSchedule = deleteSchedule;
     window.completeSchedule = completeSchedule;
     window.addSchedule = addSchedule;
+    window.syncWithNeo4j = syncWithNeo4j;
 
-    // Exemplo de integração com Neo4j (comentado)
-    /*
-    async function syncWithNeo4j() {
-        const neo4j = require('neo4j-driver');
-        const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD));
-        const session = driver.session();
-        try {
-            // Limpar dados antigos (exemplo)
-            await session.run('MATCH (u:User)-[r:HAS_SCHEDULE]->(s:Schedule) DELETE r, s');
-            await session.run('MATCH (u:User) DELETE u');
-            // Criar usuário
-            await session.run(
-                `CREATE (u:User {name: $name, level: $level, xp: $xp, streak: $streak})`,
-                { name: state.user.name, level: state.user.level, xp: state.user.xp, streak: state.user.streak }
-            );
-            // Criar schedules
-            for (const s of state.schedules) {
-                await session.run(
-                    `MATCH (u:User {name: $userName}) 
-                     CREATE (s:Schedule {day: $day, time: $time, activity: $activity})
-                     CREATE (u)-[:HAS_SCHEDULE]->(s)`,
-                    { userName: state.user.name, day: s.day, time: s.time, activity: s.activity }
-                );
-            }
-        } finally {
-            await session.close();
-            await driver.close();
-        }
-    }
-    // Chamar syncWithNeo4j() após cada saveState() se quiser persistência real.
-    */
+    console.log('🚀 TimeQuest iniciado!');
+    console.log(`📡 Neo4j URI: ${NEO4J_URI}`);
+    console.log(`👤 Username: ${NEO4J_USERNAME}`);
 </script>
-
-<!-- Nota: O sistema está pronto para ser colocado no GitHub e Vercel. 
-     Para usar Neo4j real, descomente a seção de sync e configure as credenciais. 
-     O frontend é totalmente funcional com localStorage (demo). 
--->
 </body>
 </html>
