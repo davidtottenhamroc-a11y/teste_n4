@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeQuest · gestão gamificada</title>
+    <!-- Fontes e ícones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #0b0e1a 0%, #141b2b 100%);
+            min-height: 100vh;
+            color: #e8edf5;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1300px;
+            width: 100%;
+        }
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+        }
+        .logo i {
+            color: #fbbf24;
+            font-size: 2rem;
+        }
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .user-badge {
+            background: #2a3349;
+            padding: 0.4rem 1.2rem 0.4rem 1rem;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            border: 1px solid #3d4863;
+        }
+        .user-badge i {
+            color: #fbbf24;
+        }
+        .btn {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.5rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid transparent;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #4b5a7a;
+        }
+        .btn-outline:hover {
+            background: #2a3349;
+            border-color: #6b7fa0;
+        }
+        .btn-primary {
+            background: #fbbf24;
+            color: #0b0e1a;
+        }
+        .btn-primary:hover {
+            background: #fcd34d;
+            transform: scale(1.02);
+        }
+        .btn-glow {
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+        }
+        /* cards dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(4px);
+            padding: 1.2rem 1rem;
+            border-radius: 28px;
+            border: 1px solid #2c3650;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .stat-card:hover {
+            background: #1f2840;
+            border-color: #4b5a7a;
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9aa7c7;
+            margin-top: 4px;
+        }
+        .stat-icon {
+            font-size: 1.6rem;
+            color: #fbbf24;
+            opacity: 0.7;
+        }
+        /* tabela / lista de horários */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 2rem 0 1.2rem 0;
+        }
+        .section-title i {
+            color: #fbbf24;
+        }
+        .schedule-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .schedule-item {
+            background: #18202f;
+            border-radius: 18px;
+            padding: 1rem 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 6px solid #fbbf24;
+            border: 1px solid #2b3652;
+            transition: 0.15s;
+            backdrop-filter: blur(2px);
+        }
+        .schedule-item:hover {
+            background: #1f2a40;
+            border-color: #4f6188;
+            transform: translateX(4px);
+        }
+        .schedule-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .schedule-day {
+            font-weight: 700;
+            min-width: 90px;
+            color: #d1dbf5;
+        }
+        .schedule-time {
+            background: #2a3349;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #e8edf5;
+        }
+        .schedule-tag {
+            background: #fbbf2410;
+            color: #fbbf24;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            border: 1px solid #fbbf2420;
+        }
+        .schedule-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: #8b9ac0;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 30px;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .btn-icon:hover {
+            background: #2d3a57;
+            color: #fbbf24;
+        }
+        .btn-icon.danger:hover {
+            color: #f87171;
+            background: #3a1f2a;
+        }
+        .xp-bar {
+            height: 6px;
+            background: #262f47;
+            border-radius: 10px;
+            margin: 1.2rem 0 0.5rem 0;
+            overflow: hidden;
+        }
+        .xp-fill {
+            height: 100%;
+            width: 72%;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            border-radius: 10px;
+        }
+        .level-badge {
+            font-size: 0.8rem;
+            background: #2a3349;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        /* formulário */
+        .form-card {
+            background: #111a2b;
+            border-radius: 30px;
+            padding: 1.8rem 2rem;
+            margin: 2rem 0 1.5rem 0;
+            border: 1px solid #2a3652;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1.2rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1 0 150px;
+        }
+        .form-group label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9aa7c7;
+        }
+        .form-group input, .form-group select {
+            background: #1b253b;
+            border: 1px solid #2d3a5a;
+            padding: 0.7rem 1rem;
+            border-radius: 30px;
+            color: white;
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px #fbbf2420;
+        }
+        .form-group input::placeholder {
+            color: #6a7b9e;
+        }
+        .btn-add {
+            background: #fbbf24;
+            color: #0b0e1a;
+            padding: 0.7rem 2rem;
+            border-radius: 40px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            margin-left: auto;
+        }
+        .btn-add:hover {
+            background: #fcd34d;
+            transform: scale(1.02);
+        }
+        /* mensagem vazia */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6d7fa3;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 0.8rem;
+            opacity: 0.5;
+        }
+        /* responsivo */
+        @media (max-width: 640px) {
+            .header { flex-direction: column; align-items: stretch; }
+            .user-area { justify-content: space-between; }
+            .schedule-item { flex-direction: column; align-items: start; gap: 10px; }
+            .form-card { flex-direction: column; align-items: stretch; }
+            .btn-add { margin-left: 0; justify-content: center; }
+        }
+        .toast {
+            background: #1f2a40;
+            border-left: 6px solid #fbbf24;
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            margin-top: 1rem;
+            color: #d1dbf5;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-hourglass-half"></i>
+            TimeQuest
+        </div>
+        <div class="user-area">
+            <div class="user-badge">
+                <i class="fas fa-user-astronaut"></i>
+                <span id="userNameDisplay">Aventureiro</span>
+                <span class="level-badge"><i class="fas fa-star"></i> Nv. <span id="levelDisplay">3</span></span>
+            </div>
+            <button class="btn btn-outline" id="resetUserBtn"><i class="fas fa-rotate"></i> Nova jornada</button>
+        </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-number" id="totalTasks">0</div><div class="stat-label">Horários</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><div class="stat-number" id="xpCount">0</div><div class="stat-label">XP total</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-trophy"></i></div><div class="stat-number" id="streakCount">0</div><div class="stat-label">Dias ativos</div></div>
+    </div>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:72%"></div></div>
+
+    <!-- FORMULÁRIO -->
+    <div class="form-card">
+        <div class="form-group">
+            <label><i class="far fa-calendar-alt"></i> Dia</label>
+            <select id="daySelect">
+                <option value="Segunda">Segunda</option><option value="Terça">Terça</option><option value="Quarta">Quarta</option>
+                <option value="Quinta">Quinta</option><option value="Sexta">Sexta</option><option value="Sábado">Sábado</option>
+                <option value="Domingo">Domingo</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label><i class="far fa-clock"></i> Horário</label>
+            <input type="time" id="timeInput" value="09:00">
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-tag"></i> Atividade</label>
+            <input type="text" id="activityInput" placeholder="ex: Estudar, Treino, Projeto" value="Foco">
+        </div>
+        <button class="btn-add" id="addScheduleBtn"><i class="fas fa-plus-circle"></i> Adicionar</button>
+    </div>
+
+    <!-- LISTA DE HORÁRIOS -->
+    <div class="section-title"><i class="fas fa-list-check"></i> Seus horários</div>
+    <div id="scheduleList" class="schedule-grid">
+        <!-- itens serão injetados via JS -->
+        <div class="empty-state"><i class="far fa-clock"></i><p>Nenhum horário cadastrado ainda.</p></div>
+    </div>
+
+    <!-- TOAST (mensagem) -->
+    <div id="toastMessage" class="toast" style="display: none;"></div>
+</div>
+
+<script>
+    // --------------------- CONFIG NEO4J (simulado para demonstração) ---------------------
+    // Para usar com Neo4j real, descomente e configure a URL/credenciais.
+    // Neste exemplo, usamos localStorage + um "banco em memória" simulando Neo4j.
+    // Mas a estrutura está pronta para conectar com o driver neo4j oficial.
+    
+    // const NEO4J_URI = 'bolt://localhost:7687';
+    // const NEO4J_USER = 'neo4j';
+    // const NEO4J_PASSWORD = 'password';
+
+    // Estado da aplicação (simula dados do Neo4j)
+    let state = {
+        user: { name: 'Aventureiro', level: 3, xp: 180, streak: 5 },
+        schedules: [
+            { id: 1, day: 'Segunda', time: '09:00', activity: 'Estudar JavaScript' },
+            { id: 2, day: 'Terça', time: '14:30', activity: 'Projeto pessoal' },
+            { id: 3, day: 'Quarta', time: '20:00', activity: 'Leitura' },
+        ]
+    };
+
+    // Elementos DOM
+    const scheduleListEl = document.getElementById('scheduleList');
+    const totalTasksEl = document.getElementById('totalTasks');
+    const xpCountEl = document.getElementById('xpCount');
+    const streakCountEl = document.getElementById('streakCount');
+    const xpFillEl = document.getElementById('xpFill');
+    const levelDisplayEl = document.getElementById('levelDisplay');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+
+    // Função para salvar no "banco" (localStorage + simulação Neo4j)
+    function saveState() {
+        localStorage.setItem('timequest_state', JSON.stringify(state));
+        // Se estivesse usando Neo4j, aqui faríamos uma query Cypher para sincronizar.
+        // Exemplo: 
+        // await session.run('MERGE (u:User {id: $id}) SET u.xp = $xp, u.level = $level ...', {...})
+        // E para schedules: MATCH (u)-[:HAS_SCHEDULE]->(s:Schedule) ...
+        render();
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('timequest_state');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                state = parsed;
+            } catch (e) { /* fallback */ }
+        }
+        render();
+    }
+
+    // Renderiza toda a UI
+    function render() {
+        // Atualiza stats
+        const total = state.schedules.length;
+        totalTasksEl.textContent = total;
+        xpCountEl.textContent = state.user.xp;
+        streakCountEl.textContent = state.user.streak;
+        levelDisplayEl.textContent = state.user.level;
+        userNameDisplay.textContent = state.user.name;
+
+        // XP bar (exemplo: level 1 = 100xp, level 2 = 200, etc)
+        const xpNeeded = state.user.level * 100;
+        const xpProgress = Math.min((state.user.xp % xpNeeded) / xpNeeded * 100, 100);
+        xpFillEl.style.width = Math.max(4, xpProgress) + '%';
+
+        // Lista de horários
+        if (total === 0) {
+            scheduleListEl.innerHTML = `<div class="empty-state"><i class="far fa-clock"></i><p>Nenhum horário cadastrado ainda.</p></div>`;
+            return;
+        }
+
+        let html = '';
+        state.schedules.forEach((item, index) => {
+            html += `
+                <div class="schedule-item" data-id="${item.id}">
+                    <div class="schedule-info">
+                        <span class="schedule-day"><i class="fas fa-calendar-day"></i> ${item.day}</span>
+                        <span class="schedule-time"><i class="far fa-clock"></i> ${item.time}</span>
+                        <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
+                    </div>
+                    <div class="schedule-actions">
+                        <button class="btn-icon" onclick="completeSchedule(${item.id})" title="Concluir +XP"><i class="fas fa-check-circle"></i></button>
+                        <button class="btn-icon danger" onclick="deleteSchedule(${item.id})" title="Remover"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `;
+        });
+        scheduleListEl.innerHTML = html;
+    }
+
+    // ----- AÇÕES (com gamificação) -----
+    function addSchedule(day, time, activity) {
+        if (!day || !time || !activity) {
+            showToast('Preencha todos os campos!');
+            return;
+        }
+        const newId = Date.now();
+        state.schedules.push({ id: newId, day, time, activity });
+        // Bônus XP ao adicionar (gamificação)
+        addXP(15);
+        showToast(`📅 "${activity}" adicionado! +15 XP`);
+        saveState();
+    }
+
+    function deleteSchedule(id) {
+        const index = state.schedules.findIndex(s => s.id === id);
+        if (index !== -1) {
+            const removed = state.schedules[index];
+            state.schedules.splice(index, 1);
+            // penalidade ou apenas remover
+            showToast(`🗑️ "${removed.activity}" removido.`);
+            saveState();
+        }
+    }
+
+    function completeSchedule(id) {
+        const item = state.schedules.find(s => s.id === id);
+        if (!item) return;
+        // Gamificação: ganha XP e aumenta streak
+        addXP(30);
+        state.user.streak += 1;
+        // Remove da lista (ou poderia manter como concluído, mas vamos remover para simular conclusão)
+        const index = state.schedules.findIndex(s => s.id === id);
+        if (index !== -1) state.schedules.splice(index, 1);
+        showToast(`✅ "${item.activity}" concluído! +30 XP, streak +1`);
+        saveState();
+    }
+
+    function addXP(amount) {
+        state.user.xp += amount;
+        // Subir de nível a cada 100 XP (simples)
+        while (state.user.xp >= (state.user.level * 100)) {
+            state.user.xp -= state.user.level * 100;
+            state.user.level += 1;
+            showToast(`🎉 UP! Você alcançou o nível ${state.user.level}!`);
+        }
+    }
+
+    // Reset do usuário
+    function resetUser() {
+        if (confirm('Deseja reiniciar sua jornada? Todos os horários e XP serão resetados.')) {
+            state.user = { name: 'Aventureiro', level: 1, xp: 0, streak: 0 };
+            state.schedules = [];
+            showToast('🔄 Jornada reiniciada. Boa sorte!');
+            saveState();
+        }
+    }
+
+    // Toast
+    function showToast(msg) {
+        const el = document.getElementById('toastMessage');
+        el.textContent = msg;
+        el.style.display = 'block';
+        clearTimeout(el._timeout);
+        el._timeout = setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    // Event listeners
+    document.getElementById('addScheduleBtn').addEventListener('click', () => {
+        const day = document.getElementById('daySelect').value;
+        const time = document.getElementById('timeInput').value;
+        const activity = document.getElementById('activityInput').value.trim() || 'Atividade';
+        addSchedule(day, time, activity);
+    });
+
+    document.getElementById('resetUserBtn').addEventListener('click', resetUser);
+
+    // Inicializa
+    loadState();
+
+    // Expor funções para onclick (global)
+    window.deleteSchedule = deleteSchedule;
+    window.completeSchedule = completeSchedule;
+    window.addSchedule = addSchedule;
+
+    // Exemplo de integração com Neo4j (comentado)
+    /*
+    async function syncWithNeo4j() {
+        const neo4j = require('neo4j-driver');
+        const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD));
+        const session = driver.session();
+        try {
+            // Limpar dados antigos (exemplo)
+            await session.run('MATCH (u:User)-[r:HAS_SCHEDULE]->(s:Schedule) DELETE r, s');
+            await session.run('MATCH (u:User) DELETE u');
+            // Criar usuário
+            await session.run(
+                `CREATE (u:User {name: $name, level: $level, xp: $xp, streak: $streak})`,
+                { name: state.user.name, level: state.user.level, xp: state.user.xp, streak: state.user.streak }
+            );
+            // Criar schedules
+            for (const s of state.schedules) {
+                await session.run(
+                    `MATCH (u:User {name: $userName}) 
+                     CREATE (s:Schedule {day: $day, time: $time, activity: $activity})
+                     CREATE (u)-[:HAS_SCHEDULE]->(s)`,
+                    { userName: state.user.name, day: s.day, time: s.time, activity: s.activity }
+                );
+            }
+        } finally {
+            await session.close();
+            await driver.close();
+        }
+    }
+    // Chamar syncWithNeo4j() após cada saveState() se quiser persistência real.
+    */
+</script>
+
+<!-- Nota: O sistema está pronto para ser colocado no GitHub e Vercel. 
+     Para usar Neo4j real, descomente a seção de sync e configure as credenciais. 
+     O frontend é totalmente funcional com localStorage (demo). 
+-->
+</body>
+</html>
