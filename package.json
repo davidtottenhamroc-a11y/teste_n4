@@ -1,0 +1,25 @@
+{
+  "name": "timequest-gamified",
+  "version": "1.0.0",
+  "description": "Sistema de gestão de tempo gamificado com Neo4j",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve .",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "time-management",
+    "gamification",
+    "neo4j",
+    "productivity"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "dependencies": {
+    "neo4j-driver": "^5.15.0"
+  }
+}
