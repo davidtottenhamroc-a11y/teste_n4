@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TimeQuest · gestão gamificada</title>
-    <!-- Fontes e ícones -->
+    <title>TimeQuest · Sistema Completo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Driver Neo4j para browser -->
     <script src="https://cdn.jsdelivr.net/npm/neo4j-driver@5.15.0/lib/browser/neo4j-web.min.js"></script>
     <style>
         * {
@@ -22,23 +20,124 @@
             background: linear-gradient(145deg, #0b0e1a 0%, #141b2b 100%);
             min-height: 100vh;
             color: #e8edf5;
-            padding: 2rem 1.5rem;
+        }
+
+        /* ============ LOGIN ============ */
+        .login-container {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
         }
-        .container {
-            max-width: 1300px;
+        .login-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            padding: 3rem 2.5rem;
             width: 100%;
+            max-width: 420px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }
-        /* HEADER */
+        .login-box .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-box .logo i {
+            font-size: 3rem;
+            color: #fbbf24;
+            margin-bottom: 0.5rem;
+        }
+        .login-box .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .login-box .logo p {
+            color: #9aa7c7;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        .login-box .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .login-box .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9aa7c7;
+            margin-bottom: 6px;
+        }
+        .login-box .form-group input {
+            width: 100%;
+            background: #1b253b;
+            border: 1px solid #2d3a5a;
+            padding: 0.8rem 1.2rem;
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+        }
+        .login-box .form-group input:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px #fbbf2420;
+        }
+        .login-box .btn-login {
+            width: 100%;
+            background: #fbbf24;
+            color: #0b0e1a;
+            padding: 0.9rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .login-box .btn-login:hover {
+            background: #fcd34d;
+            transform: scale(1.02);
+        }
+        .login-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 0.8rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+            text-align: center;
+        }
+        .login-status {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6a7b9e;
+            margin-top: 1rem;
+        }
+
+        /* ============ APP ============ */
+        .app-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(8px);
             padding: 1rem 2rem;
@@ -61,6 +160,7 @@
             display: flex;
             align-items: center;
             gap: 1.2rem;
+            flex-wrap: wrap;
         }
         .user-badge {
             background: #2a3349;
@@ -72,13 +172,17 @@
             font-weight: 500;
             border: 1px solid #3d4863;
         }
-        .user-badge i {
-            color: #fbbf24;
+        .level-badge {
+            font-size: 0.8rem;
+            background: #2a3349;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .btn {
-            background: #3b82f6;
             border: none;
-            color: white;
             padding: 0.5rem 1.4rem;
             border-radius: 40px;
             font-weight: 600;
@@ -93,6 +197,7 @@
         .btn-outline {
             background: transparent;
             border: 1px solid #4b5a7a;
+            color: #e8edf5;
         }
         .btn-outline:hover {
             background: #2a3349;
@@ -105,9 +210,6 @@
         .btn-primary:hover {
             background: #fcd34d;
             transform: scale(1.02);
-        }
-        .btn-glow {
-            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
         }
         .btn-success {
             background: #10b981;
@@ -123,7 +225,17 @@
         .btn-danger:hover {
             background: #dc2626;
         }
-        /* Status de conexão */
+        .btn-warning {
+            background: #f59e0b;
+            color: #0b0e1a;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        .btn-sm {
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+        }
         .connection-status {
             display: inline-flex;
             align-items: center;
@@ -139,29 +251,49 @@
             border-radius: 50%;
             display: inline-block;
         }
-        .status-dot.online {
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
+        .status-dot.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-dot.offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .status-dot.connecting { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Navegação de abas */
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 60px;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
         }
-        .status-dot.offline {
-            background: #ef4444;
-            box-shadow: 0 0 8px #ef4444;
+        .tab-btn {
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            border: none;
+            background: transparent;
+            color: #9aa7c7;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .status-dot.connecting {
+        .tab-btn:hover { color: #e8edf5; background: rgba(255,255,255,0.05); }
+        .tab-btn.active {
             background: #fbbf24;
-            box-shadow: 0 0 8px #fbbf24;
-            animation: pulse 1s infinite;
+            color: #0b0e1a;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        /* cards dashboard */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 1.2rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
         .stat-card {
             background: rgba(255, 255, 255, 0.03);
@@ -193,90 +325,6 @@
             color: #fbbf24;
             opacity: 0.7;
         }
-        /* tabela / lista de horários */
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 2rem 0 1.2rem 0;
-        }
-        .section-title i {
-            color: #fbbf24;
-        }
-        .schedule-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-        .schedule-item {
-            background: #18202f;
-            border-radius: 18px;
-            padding: 1rem 1.8rem;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            border-left: 6px solid #fbbf24;
-            border: 1px solid #2b3652;
-            transition: 0.15s;
-            backdrop-filter: blur(2px);
-        }
-        .schedule-item:hover {
-            background: #1f2a40;
-            border-color: #4f6188;
-            transform: translateX(4px);
-        }
-        .schedule-info {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-        }
-        .schedule-day {
-            font-weight: 700;
-            min-width: 90px;
-            color: #d1dbf5;
-        }
-        .schedule-time {
-            background: #2a3349;
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #e8edf5;
-        }
-        .schedule-tag {
-            background: #fbbf2410;
-            color: #fbbf24;
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            border: 1px solid #fbbf2420;
-        }
-        .schedule-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-icon {
-            background: transparent;
-            border: none;
-            color: #8b9ac0;
-            font-size: 1.1rem;
-            padding: 6px 10px;
-            border-radius: 30px;
-            transition: 0.15s;
-            cursor: pointer;
-        }
-        .btn-icon:hover {
-            background: #2d3a57;
-            color: #fbbf24;
-        }
-        .btn-icon.danger:hover {
-            color: #f87171;
-            background: #3a1f2a;
-        }
         .xp-bar {
             height: 6px;
             background: #262f47;
@@ -286,21 +334,13 @@
         }
         .xp-fill {
             height: 100%;
-            width: 72%;
+            width: 0%;
             background: linear-gradient(90deg, #fbbf24, #f59e0b);
             border-radius: 10px;
             transition: width 0.5s ease;
         }
-        .level-badge {
-            font-size: 0.8rem;
-            background: #2a3349;
-            padding: 0.2rem 0.8rem;
-            border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        /* formulário */
+
+        /* Formulário */
         .form-card {
             background: #111a2b;
             border-radius: 30px;
@@ -324,7 +364,7 @@
             letter-spacing: 1px;
             color: #9aa7c7;
         }
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             background: #1b253b;
             border: 1px solid #2d3a5a;
             padding: 0.7rem 1rem;
@@ -333,13 +373,16 @@
             font-weight: 500;
             outline: none;
             transition: 0.2s;
+            font-family: inherit;
         }
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: #fbbf24;
             box-shadow: 0 0 0 3px #fbbf2420;
         }
-        .form-group input::placeholder {
-            color: #6a7b9e;
+        .form-group textarea {
+            border-radius: 20px;
+            resize: vertical;
+            min-height: 60px;
         }
         .btn-add {
             background: #fbbf24;
@@ -356,83 +399,335 @@
             font-size: 1rem;
             margin-left: auto;
         }
-        .btn-add:hover {
-            background: #fcd34d;
-            transform: scale(1.02);
+        .btn-add:hover { background: #fcd34d; transform: scale(1.02); }
+
+        /* Lista de horários */
+        .schedule-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
         }
-        /* mensagem vazia */
+        .schedule-item {
+            background: #18202f;
+            border-radius: 18px;
+            padding: 1rem 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 6px solid #fbbf24;
+            border: 1px solid #2b3652;
+            transition: 0.15s;
+        }
+        .schedule-item:hover {
+            background: #1f2a40;
+            border-color: #4f6188;
+        }
+        .schedule-item.completed {
+            border-left-color: #10b981;
+            opacity: 0.7;
+        }
+        .schedule-item.completed .schedule-tag {
+            background: #10b98120;
+            color: #10b981;
+            border-color: #10b98140;
+        }
+        .schedule-item.failed {
+            border-left-color: #ef4444;
+            opacity: 0.7;
+        }
+        .schedule-item.failed .schedule-tag {
+            background: #ef444420;
+            color: #ef4444;
+            border-color: #ef444440;
+        }
+        .schedule-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .schedule-day { font-weight: 700; min-width: 90px; color: #d1dbf5; }
+        .schedule-time { background: #2a3349; padding: 0.2rem 1rem; border-radius: 40px; font-size: 0.9rem; font-weight: 500; }
+        .schedule-tag { padding: 0.2rem 1rem; border-radius: 40px; font-size: 0.8rem; border: 1px solid #fbbf2420; background: #fbbf2410; color: #fbbf24; }
+        .schedule-status { font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 20px; }
+        .schedule-status.completed { background: #10b98120; color: #10b981; }
+        .schedule-status.failed { background: #ef444420; color: #ef4444; }
+        .schedule-status.pending { background: #fbbf2420; color: #fbbf24; }
+        .schedule-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: #8b9ac0;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 30px;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .btn-icon:hover { background: #2d3a57; color: #fbbf24; }
+        .btn-icon.success:hover { color: #10b981; background: #10b98120; }
+        .btn-icon.danger:hover { color: #f87171; background: #3a1f2a; }
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
             color: #6d7fa3;
         }
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 0.8rem;
-            opacity: 0.5;
+        .empty-state i { font-size: 3rem; margin-bottom: 0.8rem; opacity: 0.5; }
+
+        /* ============ CALENDÁRIO ============ */
+        .calendar-container {
+            background: #111a2b;
+            border-radius: 30px;
+            padding: 2rem;
+            border: 1px solid #2a3652;
         }
-        /* responsivo */
-        @media (max-width: 640px) {
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .calendar-header h2 {
+            font-size: 1.5rem;
+            color: #fbbf24;
+        }
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .calendar-nav button {
+            background: #1b253b;
+            border: 1px solid #2d3a5a;
+            color: #e8edf5;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .calendar-nav button:hover {
+            background: #2d3a5a;
+            border-color: #fbbf24;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            color: #9aa7c7;
+            font-size: 0.8rem;
+            padding: 0.5rem;
+            text-transform: uppercase;
+        }
+        .calendar-day {
+            background: #1b253b;
+            border-radius: 16px;
+            padding: 0.8rem 0.5rem;
+            min-height: 80px;
+            border: 1px solid #2d3a5a;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+        .calendar-day:hover {
+            border-color: #fbbf24;
+            background: #242f4a;
+        }
+        .calendar-day .day-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .calendar-day .day-events {
+            font-size: 0.7rem;
+            color: #9aa7c7;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .calendar-day .day-events .event {
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #fbbf2410;
+            color: #fbbf24;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.65rem;
+        }
+        .calendar-day .day-events .event.completed { background: #10b98120; color: #10b981; }
+        .calendar-day .day-events .event.failed { background: #ef444420; color: #ef4444; }
+        .calendar-day.other-month { opacity: 0.3; }
+        .calendar-day.today { border-color: #fbbf24; background: #242f4a; }
+        .calendar-day .day-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.6rem;
+            background: #fbbf24;
+            color: #0b0e1a;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        /* ============ RELATÓRIOS ============ */
+        .report-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            background: #111a2b;
+            padding: 1.2rem;
+            border-radius: 30px;
+            border: 1px solid #2a3652;
+            align-items: flex-end;
+        }
+        .report-filters .form-group { flex: 1; min-width: 120px; }
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .report-stat {
+            background: #1b253b;
+            padding: 1rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid #2d3a5a;
+        }
+        .report-stat .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+        .report-stat .label {
+            font-size: 0.7rem;
+            color: #9aa7c7;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .report-stat .value.green { color: #10b981; }
+        .report-stat .value.red { color: #ef4444; }
+        .report-stat .value.yellow { color: #f59e0b; }
+
+        /* ============ MODAL ============ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #141b2b;
+            border: 1px solid #2a3652;
+            border-radius: 40px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-header h2 i { color: #fbbf24; }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #8b9ac0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-close:hover { color: #f87171; transform: rotate(90deg); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            background: rgba(20, 27, 43, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #2a3652;
+            border-left: 6px solid #fbbf24;
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            color: #d1dbf5;
+            font-weight: 500;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; }
             .user-area { justify-content: space-between; flex-wrap: wrap; }
             .schedule-item { flex-direction: column; align-items: start; gap: 10px; }
             .form-card { flex-direction: column; align-items: stretch; }
             .btn-add { margin-left: 0; justify-content: center; }
-        }
-        .toast {
-            background: #1f2a40;
-            border-left: 6px solid #fbbf24;
-            padding: 0.8rem 1.5rem;
-            border-radius: 40px;
-            margin-top: 1rem;
-            color: #d1dbf5;
-            font-weight: 500;
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            max-width: 90%;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-            background: rgba(20, 27, 43, 0.95);
-            border: 1px solid #2a3652;
-        }
-        .toast i {
-            margin-right: 8px;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-radius: 50%;
-            border-top-color: #fbbf24;
-            animation: spin 0.8s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .sync-btn {
-            background: #2a3349;
-            border: 1px solid #3d4863;
-            color: #e8edf5;
-            padding: 0.4rem 1rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .sync-btn:hover {
-            background: #3d4863;
+            .calendar-grid { gap: 0.3rem; }
+            .calendar-day { min-height: 60px; padding: 0.4rem; }
+            .modal { padding: 1.5rem; }
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
-<div class="container">
+
+<!-- ==================== LOGIN ==================== -->
+<div id="loginPage" class="login-container">
+    <div class="login-box">
+        <div class="logo">
+            <i class="fas fa-hourglass-half"></i>
+            <h1>TimeQuest</h1>
+            <p>Gerencie seu tempo e evolua!</p>
+        </div>
+        <div id="loginError" class="login-error">
+            <i class="fas fa-exclamation-circle"></i> Usuário ou senha inválidos!
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-user"></i> Usuário</label>
+            <input type="text" id="loginUser" placeholder="Digite seu usuário" value="David">
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-lock"></i> Senha</label>
+            <input type="password" id="loginPass" placeholder="Digite sua senha" value="Tottenam0724">
+        </div>
+        <button class="btn-login" id="loginBtn">
+            <i class="fas fa-sign-in-alt"></i> Entrar
+        </button>
+        <div class="login-status">
+            <i class="fas fa-database"></i> <span id="loginStatus">Conectando ao Neo4j...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="appContainer" class="app-container">
+
     <!-- HEADER -->
     <header class="header">
         <div class="logo">
@@ -444,478 +739,1124 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Conectando...</span>
             </div>
-            <button class="sync-btn" id="syncBtn" title="Sincronizar com Neo4j">
-                <i class="fas fa-sync"></i> Sincronizar
+            <button class="btn btn-success btn-sm" id="manageUsersBtn" style="display:none;">
+                <i class="fas fa-users-cog"></i> Usuários
             </button>
             <div class="user-badge">
                 <i class="fas fa-user-astronaut"></i>
-                <span id="userNameDisplay">Aventureiro</span>
+                <span id="userNameDisplay">Carregando...</span>
                 <span class="level-badge"><i class="fas fa-star"></i> Nv. <span id="levelDisplay">1</span></span>
             </div>
-            <button class="btn btn-outline" id="resetUserBtn"><i class="fas fa-rotate"></i> Reset</button>
+            <button class="btn btn-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
     </header>
 
-    <!-- STATS -->
+    <!-- Stats -->
     <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-number" id="totalTasks">0</div><div class="stat-label">Horários</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-number" id="totalTasks">0</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div><div class="stat-number" id="completedTasks">0</div><div class="stat-label">Concluídos</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-times-circle" style="color:#ef4444;"></i></div><div class="stat-number" id="failedTasks">0</div><div class="stat-label">Não Cumpridos</div></div>
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><div class="stat-number" id="xpCount">0</div><div class="stat-label">XP total</div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-trophy"></i></div><div class="stat-number" id="streakCount">0</div><div class="stat-label">Dias ativos</div></div>
     </div>
-    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
 
-    <!-- FORMULÁRIO -->
-    <div class="form-card">
-        <div class="form-group">
-            <label><i class="far fa-calendar-alt"></i> Dia</label>
-            <select id="daySelect">
-                <option value="Segunda">Segunda</option>
-                <option value="Terça">Terça</option>
-                <option value="Quarta">Quarta</option>
-                <option value="Quinta">Quinta</option>
-                <option value="Sexta">Sexta</option>
-                <option value="Sábado">Sábado</option>
-                <option value="Domingo">Domingo</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label><i class="far fa-clock"></i> Horário</label>
-            <input type="time" id="timeInput" value="09:00">
-        </div>
-        <div class="form-group">
-            <label><i class="fas fa-tag"></i> Atividade</label>
-            <input type="text" id="activityInput" placeholder="ex: Estudar, Treino, Projeto" value="Foco">
-        </div>
-        <button class="btn-add" id="addScheduleBtn"><i class="fas fa-plus-circle"></i> Adicionar</button>
+    <!-- Tabs -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="tab-schedule"><i class="fas fa-list"></i> Horários</button>
+        <button class="tab-btn" data-tab="tab-calendar"><i class="fas fa-calendar-alt"></i> Calendário</button>
+        <button class="tab-btn" data-tab="tab-reports"><i class="fas fa-chart-bar"></i> Relatórios</button>
     </div>
 
-    <!-- LISTA DE HORÁRIOS -->
-    <div class="section-title"><i class="fas fa-list-check"></i> Seus horários</div>
-    <div id="scheduleList" class="schedule-grid">
-        <div class="empty-state"><i class="far fa-clock"></i><p>Carregando...</p></div>
+    <!-- ============ TAB 1: HORÁRIOS ============ -->
+    <div id="tab-schedule" class="tab-content active">
+        <div class="form-card">
+            <div class="form-group">
+                <label><i class="far fa-calendar-alt"></i> Dia</label>
+                <select id="daySelect">
+                    <option value="Segunda">Segunda</option>
+                    <option value="Terça">Terça</option>
+                    <option value="Quarta">Quarta</option>
+                    <option value="Quinta">Quinta</option>
+                    <option value="Sexta">Sexta</option>
+                    <option value="Sábado">Sábado</option>
+                    <option value="Domingo">Domingo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><i class="far fa-clock"></i> Horário</label>
+                <input type="time" id="timeInput" value="09:00">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-tag"></i> Atividade</label>
+                <input type="text" id="activityInput" placeholder="ex: Estudar, Treino" value="Foco">
+            </div>
+            <button class="btn-add" id="addScheduleBtn"><i class="fas fa-plus-circle"></i> Adicionar</button>
+        </div>
+
+        <div class="section-title" style="font-size:1.2rem;font-weight:600;margin:1.5rem 0 1rem 0;display:flex;align-items:center;gap:10px;">
+            <i class="fas fa-list-check" style="color:#fbbf24;"></i> Seus horários
+        </div>
+        <div id="scheduleList" class="schedule-grid">
+            <div class="empty-state"><i class="far fa-clock"></i><p>Carregando...</p></div>
+        </div>
     </div>
 
-    <!-- TOAST -->
-    <div id="toastMessage" class="toast" style="display: none;"></div>
+    <!-- ============ TAB 2: CALENDÁRIO ============ -->
+    <div id="tab-calendar" class="tab-content">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h2 id="calendarTitle">Janeiro 2024</h2>
+                <div class="calendar-nav">
+                    <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                    <button id="todayBtn">Hoje</button>
+                    <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 3: RELATÓRIOS ============ -->
+    <div id="tab-reports" class="tab-content">
+        <div class="report-filters">
+            <div class="form-group">
+                <label>Período</label>
+                <select id="reportPeriod">
+                    <option value="all">Todos</option>
+                    <option value="week">Esta Semana</option>
+                    <option value="month">Este Mês</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="reportStatus">
+                    <option value="all">Todos</option>
+                    <option value="pending">Pendentes</option>
+                    <option value="completed">Concluídos</option>
+                    <option value="failed">Não Cumpridos</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="applyReportBtn"><i class="fas fa-filter"></i> Aplicar Filtros</button>
+            <button class="btn btn-outline" id="exportReportBtn"><i class="fas fa-download"></i> Exportar</button>
+        </div>
+
+        <div class="report-stats" id="reportStats">
+            <div class="report-stat"><div class="value" id="reportTotal">0</div><div class="label">Total</div></div>
+            <div class="report-stat"><div class="value green" id="reportCompleted">0</div><div class="label">Concluídos</div></div>
+            <div class="report-stat"><div class="value red" id="reportFailed">0</div><div class="label">Não Cumpridos</div></div>
+            <div class="report-stat"><div class="value yellow" id="reportPending">0</div><div class="label">Pendentes</div></div>
+        </div>
+
+        <div id="reportList" class="schedule-grid">
+            <div class="empty-state"><i class="fas fa-chart-bar"></i><p>Carregando relatórios...</p></div>
+        </div>
+    </div>
 </div>
 
-<script>
-    // ==================== CONFIGURAÇÃO NEO4J AURA ====================
-    const NEO4J_URI = 'neo4j+s://2fa4db6b.databases.neo4j.io';
-    const NEO4J_USERNAME = 'neo4j';
-    const NEO4J_PASSWORD = 'p2vNmWMfjESq3xSjJpygJNJh9U4SFkxBaw1AShw05qs';
-    const NEO4J_DATABASE = 'neo4j';
+<!-- ==================== MODAL JUSTIFICATIVA ==================== -->
+<div id="justifyModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-comment" style="color:#f59e0b;"></i> Justificar Não Cumprimento</h2>
+            <button class="modal-close" id="closeJustifyModal">&times;</button>
+        </div>
+        <p style="color:#9aa7c7;margin-bottom:1rem;">Por que você não conseguiu cumprir esta atividade?</p>
+        <div class="form-group">
+            <label>Justificativa</label>
+            <textarea id="justifyText" placeholder="Descreva o motivo..." rows="4"></textarea>
+        </div>
+        <div style="display:flex;gap:0.8rem;margin-top:1rem;">
+            <button class="btn btn-danger" id="confirmJustifyBtn"><i class="fas fa-times-circle"></i> Confirmar</button>
+            <button class="btn btn-outline" id="cancelJustifyBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
 
-    // ==================== ESTADO DA APLICAÇÃO ====================
-    let state = {
-        user: { name: 'Aventureiro', level: 1, xp: 0, streak: 0 },
-        schedules: []
-    };
-
-    let driver = null;
-    let neo4jConnected = false;
-    let isLoading = false;
-
-    // ==================== ELEMENTOS DOM ====================
-    const scheduleListEl = document.getElementById('scheduleList');
-    const totalTasksEl = document.getElementById('totalTasks');
-    const xpCountEl = document.getElementById('xpCount');
-    const streakCountEl = document.getElementById('streakCount');
-    const xpFillEl = document.getElementById('xpFill');
-    const levelDisplayEl = document.getElementById('levelDisplay');
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    const toastMessage = document.getElementById('toastMessage');
-
-    // ==================== CONEXÃO NEO4J ====================
-    async function connectNeo4j() {
-        try {
-            setStatus('connecting', 'Conectando...');
-            
-            // Verificar se o driver está disponível
-            if (typeof neo4j === 'undefined') {
-                throw new Error('Driver Neo4j não carregado');
-            }
-
-            driver = neo4j.driver(
-                NEO4J_URI,
-                neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD),
-                {
-                    database: NEO4J_DATABASE,
-                    connectionTimeout: 30000,
-                    maxConnectionLifetime: 3 * 60 * 60 * 1000,
-                    maxConnectionPoolSize: 50,
-                    connectionAcquisitionTimeout: 60000
-                }
-            );
-
-            // Verificar conectividade
-            await driver.verifyConnectivity();
-            neo4jConnected = true;
-            setStatus('online', 'Conectado');
-            console.log('✅ Conectado ao Neo4j AuraDB com sucesso!');
-            return true;
-        } catch (error) {
-            console.error('❌ Erro ao conectar Neo4j:', error.message);
-            neo4jConnected = false;
-            setStatus('offline', 'Offline');
-            showToast('⚠️ Falha na conexão com Neo4j. Usando localStorage.');
-            return false;
-        }
-    }
-
-    function setStatus(status, text) {
-        statusDot.className = 'status-dot ' + status;
-        statusText.textContent = text;
-    }
-
-    // ==================== OPERAÇÕES NEO4J ====================
-    async function loadFromNeo4j() {
-        if (!neo4jConnected || !driver) {
-            return false;
-        }
-
-        isLoading = true;
-        const session = driver.session({ database: NEO4J_DATABASE });
-        
-        try {
-            // 1. Buscar usuário
-            const userResult = await session.run(
-                `MATCH (u:User) 
-                 RETURN u.name as name, u.level as level, u.xp as xp, u.streak as streak 
-                 LIMIT 1`
-            );
-
-            if (userResult.records.length === 0) {
-                // Criar usuário padrão
-                await session.run(
-                    `CREATE (u:User {name: 'Aventureiro', level: 1, xp: 0, streak: 0})`
-                );
-                state.user = { name: 'Aventureiro', level: 1, xp: 0, streak: 0 };
-                console.log('👤 Usuário criado no Neo4j');
-            } else {
-                const record = userResult.records[0];
-                state.user = {
-                    name: record.get('name'),
-                    level: neo4j.isInt(record.get('level')) ? record.get('level').toNumber() : record.get('level'),
-                    xp: neo4j.isInt(record.get('xp')) ? record.get('xp').toNumber() : record.get('xp'),
-                    streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak')
-                };
-                console.log('👤 Usuário carregado:', state.user);
-            }
-
-            // 2. Buscar horários do usuário
-            const schedulesResult = await session.run(
-                `MATCH (u:User)-[:HAS_SCHEDULE]->(s:Schedule)
-                 RETURN s.id as id, s.day as day, s.time as time, s.activity as activity
-                 ORDER BY s.day`
-            );
-
-            state.schedules = schedulesResult.records.map(record => ({
-                id: neo4j.isInt(record.get('id')) ? record.get('id').toNumber() : record.get('id'),
-                day: record.get('day'),
-                time: record.get('time'),
-                activity: record.get('activity')
-            }));
-
-            console.log(`📋 ${state.schedules.length} horários carregados`);
-            return true;
-
-        } catch (error) {
-            console.error('Erro ao carregar dados do Neo4j:', error);
-            showToast('❌ Erro ao carregar dados: ' + error.message);
-            return false;
-        } finally {
-            await session.close();
-            isLoading = false;
-        }
-    }
-
-    async function saveToNeo4j() {
-        if (!neo4jConnected || !driver) {
-            console.warn('Neo4j não conectado. Salvando apenas localmente.');
-            return false;
-        }
-
-        const session = driver.session({ database: NEO4J_DATABASE });
-        
-        try {
-            // 1. Atualizar usuário
-            await session.run(
-                `MATCH (u:User)
-                 SET u.name = $name, u.level = $level, u.xp = $xp, u.streak = $streak`,
-                {
-                    name: state.user.name,
-                    level: state.user.level,
-                    xp: state.user.xp,
-                    streak: state.user.streak
-                }
-            );
-
-            // 2. Limpar horários antigos
-            await session.run(
-                `MATCH (u:User)-[r:HAS_SCHEDULE]->(s:Schedule)
-                 DELETE r, s`
-            );
-
-            // 3. Criar novos horários
-            for (const s of state.schedules) {
-                await session.run(
-                    `MATCH (u:User)
-                     CREATE (s:Schedule {id: $id, day: $day, time: $time, activity: $activity})
-                     CREATE (u)-[:HAS_SCHEDULE]->(s)`,
-                    {
-                        id: s.id,
-                        day: s.day,
-                        time: s.time,
-                        activity: s.activity
-                    }
-                );
-            }
-
-            console.log('💾 Dados salvos no Neo4j com sucesso!');
-            return true;
-
-        } catch (error) {
-            console.error('Erro ao salvar no Neo4j:', error);
-            showToast('❌ Erro ao salvar: ' + error.message);
-            return false;
-        } finally {
-            await session.close();
-        }
-    }
-
-    // ==================== FUNÇÕES DE ESTADO ====================
-    function saveState() {
-        // Sempre salva no localStorage (fallback)
-        localStorage.setItem('timequest_state', JSON.stringify(state));
-        
-        // Tenta salvar no Neo4j
-        if (neo4jConnected) {
-            saveToNeo4j().catch(err => {
-                console.error('Erro ao sincronizar com Neo4j:', err);
-            });
-        }
-        
-        render();
-    }
-
-    async function loadState() {
-        // Tenta carregar do Neo4j primeiro
-        if (neo4jConnected) {
-            const loaded = await loadFromNeo4j();
-            if (loaded) {
-                render();
-                return;
-            }
-        }
-        
-        // Fallback para localStorage
-        const saved = localStorage.getItem('timequest_state');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                state = parsed;
-                console.log('📦 Dados carregados do localStorage');
-            } catch (e) {
-                console.warn('Erro ao parsear localStorage:', e);
-            }
-        }
-        render();
-    }
-
-    // ==================== RENDER ====================
-    function render() {
-        // Atualiza stats
-        const total = state.schedules.length;
-        totalTasksEl.textContent = total;
-        xpCountEl.textContent = state.user.xp;
-        streakCountEl.textContent = state.user.streak;
-        levelDisplayEl.textContent = state.user.level;
-        userNameDisplay.textContent = state.user.name;
-
-        // XP bar
-        const xpNeeded = state.user.level * 100;
-        const xpProgress = Math.min((state.user.xp % xpNeeded) / xpNeeded * 100, 100);
-        xpFillEl.style.width = Math.max(4, xpProgress) + '%';
-
-        // Lista de horários
-        if (total === 0) {
-            scheduleListEl.innerHTML = `
-                <div class="empty-state">
-                    <i class="far fa-clock"></i>
-                    <p>Nenhum horário cadastrado ainda.</p>
-                    <p style="font-size:0.8rem;margin-top:8px;color:#4a5a7a;">
-                        <i class="fas fa-plus-circle"></i> Adicione seu primeiro horário!
-                    </p>
+<!-- ==================== MODAL USUÁRIOS ==================== -->
+<div id="userModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-users-cog"></i> Gerenciar Usuários</h2>
+            <button class="modal-close" id="closeUserModal">&times;</button>
+        </div>
+        <div style="background:#1b253b;border-radius:30px;padding:1.2rem;margin-bottom:1.5rem;border:1px solid #2d3a5a;">
+            <h4 style="margin-bottom:0.8rem;color:#fbbf24;"><i class="fas fa-user-plus"></i> Criar Novo Usuário</h4>
+            <div class="form-row" style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+                <div class="form-group" style="flex:1;min-width:120px;">
+                    <label>Usuário</label>
+                    <input type="text" id="newUsername" placeholder="Nome">
                 </div>
-            `;
-            return;
+                <div class="form-group" style="flex:1;min-width:120px;">
+                    <label>Senha</label>
+                    <input type="text" id="newPassword" placeholder="Senha">
+                </div>
+                <div class="form-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-success" id="createUserBtn" style="padding:0.7rem 1.5rem;">
+                        <i class="fas fa-plus"></i> Criar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <h4 style="margin-bottom:0.8rem;color:#9aa7c7;"><i class="fas fa-list"></i> Usuários</h4>
+        <div id="userList" class="user-list">
+            <div style="text-align:center;padding:1rem;color:#6a7b9e;">
+                <i class="fas fa-spinner fa-spin"></i> Carregando...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TOAST ==================== -->
+<div id="toastMessage" class="toast"></div>
+
+<script>
+// ==================== CONFIGURAÇÃO ====================
+const NEO4J_URI = 'neo4j+s://2fa4db6b.databases.neo4j.io';
+const NEO4J_USERNAME = 'neo4j';
+const NEO4J_PASSWORD = 'p2vNmWMfjESq3xSjJpygJNJh9U4SFkxBaw1AShw05qs';
+const NEO4J_DATABASE = 'neo4j';
+
+let driver = null;
+let neo4jConnected = false;
+let currentUser = null;
+let state = {
+    user: { name: 'Aventureiro', level: 1, xp: 0, streak: 0 },
+    schedules: [],
+    history: [] // { id, scheduleId, status, date, justification }
+};
+let isLoading = false;
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let pendingJustifyId = null;
+
+// ==================== DOM ELEMENTS ====================
+// Login
+const loginPage = document.getElementById('loginPage');
+const appContainer = document.getElementById('appContainer');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const loginStatus = document.getElementById('loginStatus');
+
+// App
+const logoutBtn = document.getElementById('logoutBtn');
+const userNameDisplay = document.getElementById('userNameDisplay');
+const levelDisplay = document.getElementById('levelDisplay');
+const totalTasksEl = document.getElementById('totalTasks');
+const completedTasksEl = document.getElementById('completedTasks');
+const failedTasksEl = document.getElementById('failedTasks');
+const xpCountEl = document.getElementById('xpCount');
+const xpFillEl = document.getElementById('xpFill');
+const scheduleListEl = document.getElementById('scheduleList');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const manageUsersBtn = document.getElementById('manageUsersBtn');
+const toastMessage = document.getElementById('toastMessage');
+
+// Tabs
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+// Calendar
+const calendarGrid = document.getElementById('calendarGrid');
+const calendarTitle = document.getElementById('calendarTitle');
+
+// Reports
+const reportList = document.getElementById('reportList');
+const reportTotal = document.getElementById('reportTotal');
+const reportCompleted = document.getElementById('reportCompleted');
+const reportFailed = document.getElementById('reportFailed');
+const reportPending = document.getElementById('reportPending');
+
+// Modals
+const justifyModal = document.getElementById('justifyModal');
+const justifyText = document.getElementById('justifyText');
+const closeJustifyModal = document.getElementById('closeJustifyModal');
+const confirmJustifyBtn = document.getElementById('confirmJustifyBtn');
+const cancelJustifyBtn = document.getElementById('cancelJustifyBtn');
+
+const userModal = document.getElementById('userModal');
+const closeUserModal = document.getElementById('closeUserModal');
+const userList = document.getElementById('userList');
+const newUsername = document.getElementById('newUsername');
+const newPassword = document.getElementById('newPassword');
+const createUserBtn = document.getElementById('createUserBtn');
+
+// ==================== NEO4J CONEXÃO ====================
+async function connectNeo4j() {
+    try {
+        setStatus('connecting', 'Conectando...');
+        loginStatus.textContent = 'Conectando ao Neo4j...';
+        
+        if (typeof neo4j === 'undefined') {
+            throw new Error('Driver Neo4j não carregado');
         }
 
-        let html = '';
-        state.schedules.forEach((item) => {
-            html += `
-                <div class="schedule-item" data-id="${item.id}">
-                    <div class="schedule-info">
-                        <span class="schedule-day"><i class="fas fa-calendar-day"></i> ${item.day}</span>
-                        <span class="schedule-time"><i class="far fa-clock"></i> ${item.time}</span>
-                        <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
-                    </div>
-                    <div class="schedule-actions">
-                        <button class="btn-icon" onclick="completeSchedule(${item.id})" title="Concluir +XP">
+        driver = neo4j.driver(
+            NEO4J_URI,
+            neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD),
+            { database: NEO4J_DATABASE }
+        );
+
+        await driver.verifyConnectivity();
+        neo4jConnected = true;
+        setStatus('online', 'Conectado');
+        loginStatus.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i> Conectado ao Neo4j';
+        return true;
+    } catch (error) {
+        console.error('❌ Erro Neo4j:', error.message);
+        neo4jConnected = false;
+        setStatus('offline', 'Offline');
+        loginStatus.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> Falha na conexão';
+        return false;
+    }
+}
+
+function setStatus(status, text) {
+    statusDot.className = 'status-dot ' + status;
+    statusText.textContent = text;
+}
+
+// ==================== AUTENTICAÇÃO ====================
+async function authenticateUser(username, password) {
+    if (!neo4jConnected || !driver) {
+        loginError.style.display = 'block';
+        loginError.textContent = '⚠️ Banco de dados não disponível';
+        return false;
+    }
+
+    const session = driver.session({ database: NEO4J_DATABASE });
+    try {
+        const result = await session.run(
+            `MATCH (u:User {name: $username})
+             RETURN u.name as name, u.password as password, u.isAdmin as isAdmin,
+                    u.level as level, u.xp as xp, u.streak as streak`,
+            { username }
+        );
+
+        if (result.records.length === 0) {
+            loginError.style.display = 'block';
+            loginError.textContent = '❌ Usuário não encontrado!';
+            return false;
+        }
+
+        const record = result.records[0];
+        const storedPassword = record.get('password');
+        const isAdmin = record.get('isAdmin') || false;
+
+        if (storedPassword !== password) {
+            loginError.style.display = 'block';
+            loginError.textContent = '❌ Senha incorreta!';
+            return false;
+        }
+
+        currentUser = {
+            username: record.get('name'),
+            isAdmin: isAdmin === true || isAdmin === 'true',
+            level: neo4j.isInt(record.get('level')) ? record.get('level').toNumber() : record.get('level') || 1,
+            xp: neo4j.isInt(record.get('xp')) ? record.get('xp').toNumber() : record.get('xp') || 0,
+            streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak') || 0
+        };
+
+        await loadUserData(username);
+        loginError.style.display = 'none';
+        return true;
+
+    } catch (error) {
+        console.error('Erro na autenticação:', error);
+        loginError.style.display = 'block';
+        loginError.textContent = '❌ Erro ao autenticar: ' + error.message;
+        return false;
+    } finally {
+        await session.close();
+    }
+}
+
+async function loadUserData(username) {
+    if (!neo4jConnected || !driver) return false;
+
+    const session = driver.session({ database: NEO4J_DATABASE });
+    try {
+        // Carregar usuário
+        const userResult = await session.run(
+            `MATCH (u:User {name: $username})
+             RETURN u.name as name, u.level as level, u.xp as xp, u.streak as streak`,
+            { username }
+        );
+
+        if (userResult.records.length > 0) {
+            const record = userResult.records[0];
+            state.user = {
+                name: record.get('name'),
+                level: neo4j.isInt(record.get('level')) ? record.get('level').toNumber() : record.get('level') || 1,
+                xp: neo4j.isInt(record.get('xp')) ? record.get('xp').toNumber() : record.get('xp') || 0,
+                streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak') || 0
+            };
+        }
+
+        // Carregar horários
+        const schedulesResult = await session.run(
+            `MATCH (u:User {name: $username})-[:HAS_SCHEDULE]->(s:Schedule)
+             RETURN s.id as id, s.day as day, s.time as time, s.activity as activity,
+                    s.status as status, s.justification as justification
+             ORDER BY s.day, s.time`,
+            { username }
+        );
+
+        state.schedules = schedulesResult.records.map(record => ({
+            id: neo4j.isInt(record.get('id')) ? record.get('id').toNumber() : record.get('id'),
+            day: record.get('day'),
+            time: record.get('time'),
+            activity: record.get('activity'),
+            status: record.get('status') || 'pending',
+            justification: record.get('justification') || ''
+        }));
+
+        return true;
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        return false;
+    } finally {
+        await session.close();
+    }
+}
+
+async function saveUserData() {
+    if (!neo4jConnected || !driver || !currentUser) return false;
+
+    const session = driver.session({ database: NEO4J_DATABASE });
+    try {
+        // Atualizar usuário
+        await session.run(
+            `MATCH (u:User {name: $username})
+             SET u.level = $level, u.xp = $xp, u.streak = $streak`,
+            {
+                username: currentUser.username,
+                level: state.user.level,
+                xp: state.user.xp,
+                streak: state.user.streak
+            }
+        );
+
+        // Limpar horários antigos
+        await session.run(
+            `MATCH (u:User {name: $username})-[r:HAS_SCHEDULE]->(s:Schedule)
+             DELETE r, s`,
+            { username: currentUser.username }
+        );
+
+        // Criar novos horários
+        for (const s of state.schedules) {
+            await session.run(
+                `MATCH (u:User {name: $username})
+                 CREATE (s:Schedule {
+                    id: $id,
+                    day: $day,
+                    time: $time,
+                    activity: $activity,
+                    status: $status,
+                    justification: $justification
+                 })
+                 CREATE (u)-[:HAS_SCHEDULE]->(s)`,
+                {
+                    username: currentUser.username,
+                    id: s.id,
+                    day: s.day,
+                    time: s.time,
+                    activity: s.activity,
+                    status: s.status || 'pending',
+                    justification: s.justification || ''
+                }
+            );
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar:', error);
+        return false;
+    } finally {
+        await session.close();
+    }
+}
+
+// ==================== FUNÇÕES PRINCIPAIS ====================
+function render() {
+    const total = state.schedules.length;
+    const completed = state.schedules.filter(s => s.status === 'completed').length;
+    const failed = state.schedules.filter(s => s.status === 'failed').length;
+    
+    totalTasksEl.textContent = total;
+    completedTasksEl.textContent = completed;
+    failedTasksEl.textContent = failed;
+    xpCountEl.textContent = state.user.xp;
+    levelDisplayEl.textContent = state.user.level;
+    userNameDisplay.textContent = currentUser ? currentUser.username : 'Aventureiro';
+
+    const xpNeeded = state.user.level * 100;
+    const xpProgress = Math.min((state.user.xp % xpNeeded) / xpNeeded * 100, 100);
+    xpFillEl.style.width = Math.max(4, xpProgress) + '%';
+
+    renderScheduleList();
+    renderCalendar();
+    renderReport();
+}
+
+function renderScheduleList() {
+    const items = state.schedules;
+    if (items.length === 0) {
+        scheduleListEl.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-clock"></i>
+                <p>Nenhum horário cadastrado ainda.</p>
+                <p style="font-size:0.8rem;margin-top:8px;color:#4a5a7a;">
+                    <i class="fas fa-plus-circle"></i> Adicione seu primeiro horário!
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    items.forEach((item) => {
+        const statusClass = item.status === 'completed' ? 'completed' : item.status === 'failed' ? 'failed' : '';
+        const statusLabel = item.status === 'completed' ? '✅ Concluído' : 
+                           item.status === 'failed' ? '❌ Não cumprido' : '⏳ Pendente';
+        const statusBadgeClass = item.status === 'completed' ? 'completed' : 
+                                 item.status === 'failed' ? 'failed' : 'pending';
+        
+        html += `
+            <div class="schedule-item ${statusClass}">
+                <div class="schedule-info">
+                    <span class="schedule-day"><i class="fas fa-calendar-day"></i> ${item.day}</span>
+                    <span class="schedule-time"><i class="far fa-clock"></i> ${item.time}</span>
+                    <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
+                    <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
+                    ${item.justification ? `<span style="font-size:0.7rem;color:#9aa7c7;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
+                </div>
+                <div class="schedule-actions">
+                    ${item.status === 'pending' ? `
+                        <button class="btn-icon success" onclick="markCompleted(${item.id})" title="Marcar como concluído">
                             <i class="fas fa-check-circle"></i>
                         </button>
-                        <button class="btn-icon danger" onclick="deleteSchedule(${item.id})" title="Remover">
-                            <i class="fas fa-trash-alt"></i>
+                        <button class="btn-icon danger" onclick="openJustifyModal(${item.id})" title="Marcar como não cumprido">
+                            <i class="fas fa-times-circle"></i>
                         </button>
-                    </div>
+                    ` : ''}
+                    <button class="btn-icon danger" onclick="deleteSchedule(${item.id})" title="Remover">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
-            `;
+            </div>
+        `;
+    });
+    scheduleListEl.innerHTML = html;
+}
+
+function addSchedule(day, time, activity) {
+    if (!day || !time || !activity) {
+        showToast('⚠️ Preencha todos os campos!');
+        return;
+    }
+    
+    const newId = Date.now();
+    state.schedules.push({ 
+        id: newId, 
+        day, 
+        time, 
+        activity,
+        status: 'pending',
+        justification: ''
+    });
+    addXP(15);
+    showToast(`✅ "${activity}" adicionado! +15 XP`);
+    saveUserData().then(() => render());
+}
+
+function deleteSchedule(id) {
+    if (!confirm('Remover este horário?')) return;
+    const index = state.schedules.findIndex(s => s.id === id);
+    if (index !== -1) {
+        state.schedules.splice(index, 1);
+        showToast(`🗑️ Horário removido.`);
+        saveUserData().then(() => render());
+    }
+}
+
+function markCompleted(id) {
+    const item = state.schedules.find(s => s.id === id);
+    if (!item) return;
+    
+    item.status = 'completed';
+    item.justification = '';
+    addXP(30);
+    state.user.streak += 1;
+    
+    showToast(`🎉 "${item.activity}" concluído! +30 XP, streak +1`);
+    saveUserData().then(() => render());
+}
+
+function openJustifyModal(id) {
+    pendingJustifyId = id;
+    justifyText.value = '';
+    justifyModal.classList.add('active');
+}
+
+function confirmJustify() {
+    const justification = justifyText.value.trim();
+    if (!justification) {
+        showToast('⚠️ Por favor, insira uma justificativa.');
+        return;
+    }
+    
+    const item = state.schedules.find(s => s.id === pendingJustifyId);
+    if (item) {
+        item.status = 'failed';
+        item.justification = justification;
+        showToast(`📝 "${item.activity}" marcado como não cumprido.`);
+        saveUserData().then(() => render());
+    }
+    
+    justifyModal.classList.remove('active');
+    pendingJustifyId = null;
+}
+
+function addXP(amount) {
+    state.user.xp += amount;
+    while (state.user.xp >= (state.user.level * 100)) {
+        state.user.xp -= state.user.level * 100;
+        state.user.level += 1;
+        showToast(`🎊 UP! Você alcançou o nível ${state.user.level}!`);
+    }
+}
+
+// ==================== CALENDÁRIO ====================
+function renderCalendar() {
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+    const todayDate = today.getDate();
+    const todayMonth = today.getMonth();
+    const todayYear = today.getFullYear();
+
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    calendarTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    let html = daysOfWeek.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+    // Dias do mês anterior
+    const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const day = prevMonthDays - i;
+        html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+    }
+
+    // Dias do mês atual
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
+        
+        // Buscar eventos do dia
+        const dayEvents = state.schedules.filter(s => {
+            const dayMap = { 'Domingo': 0, 'Segunda': 1, 'Terça': 2, 'Quarta': 3, 'Quinta': 4, 'Sexta': 5, 'Sábado': 6 };
+            return s.day && dayMap[s.day] === new Date(currentYear, currentMonth, day).getDay();
         });
-        scheduleListEl.innerHTML = html;
+
+        html += `
+            <div class="calendar-day ${isToday ? 'today' : ''}">
+                <div class="day-number">${day}</div>
+                <div class="day-events">
+                    ${dayEvents.slice(0, 3).map(e => `
+                        <div class="event ${e.status}">${e.time} ${e.activity}</div>
+                    `).join('')}
+                    ${dayEvents.length > 3 ? `<div style="font-size:0.6rem;color:#6a7b9e;">+${dayEvents.length - 3} mais</div>` : ''}
+                </div>
+                ${dayEvents.length > 0 ? `<span class="day-badge">${dayEvents.length}</span>` : ''}
+            </div>
+        `;
     }
 
-    // ==================== AÇÕES ====================
-    function addSchedule(day, time, activity) {
-        if (!day || !time || !activity) {
-            showToast('⚠️ Preencha todos os campos!');
-            return;
+    // Preencher dias restantes
+    const totalCells = firstDay + daysInMonth;
+    const remainingCells = (7 - (totalCells % 7)) % 7;
+    for (let day = 1; day <= remainingCells; day++) {
+        html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+    }
+
+    calendarGrid.innerHTML = html;
+}
+
+// ==================== RELATÓRIOS ====================
+function renderReport() {
+    const statusFilter = document.getElementById('reportStatus').value;
+    const periodFilter = document.getElementById('reportPeriod').value;
+    
+    let filtered = [...state.schedules];
+    
+    // Filtrar por status
+    if (statusFilter !== 'all') {
+        filtered = filtered.filter(s => s.status === statusFilter);
+    }
+    
+    // Filtrar por período
+    if (periodFilter === 'week') {
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        // Simples filtro: apenas mostra os 7 dias da semana
+        const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        const weekDays = dayMap.map((_, i) => {
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
+            return dayMap[d.getDay()];
+        });
+        filtered = filtered.filter(s => weekDays.includes(s.day));
+    } else if (periodFilter === 'month') {
+        const now = new Date();
+        const monthDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+        // Pega os dias do mês atual
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const monthDaysList = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(now.getFullYear(), now.getMonth(), d);
+            monthDaysList.push(['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][date.getDay()]);
         }
+        filtered = filtered.filter(s => monthDaysList.includes(s.day));
+    }
+    
+    // Estatísticas
+    const total = filtered.length;
+    const completed = filtered.filter(s => s.status === 'completed').length;
+    const failed = filtered.filter(s => s.status === 'failed').length;
+    const pending = filtered.filter(s => s.status === 'pending' || !s.status).length;
+    
+    reportTotal.textContent = total;
+    reportCompleted.textContent = completed;
+    reportFailed.textContent = failed;
+    reportPending.textContent = pending;
+    
+    // Lista
+    if (filtered.length === 0) {
+        reportList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-chart-bar"></i>
+                <p>Nenhum registro encontrado com os filtros selecionados.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    filtered.forEach((item) => {
+        const statusLabel = item.status === 'completed' ? '✅ Concluído' : 
+                           item.status === 'failed' ? '❌ Não cumprido' : '⏳ Pendente';
+        const statusBadgeClass = item.status === 'completed' ? 'completed' : 
+                                 item.status === 'failed' ? 'failed' : 'pending';
         
-        const newId = Date.now();
-        state.schedules.push({ id: newId, day, time, activity });
-        addXP(15);
-        showToast(`✅ "${activity}" adicionado! +15 XP`);
-        saveState();
-    }
-
-    function deleteSchedule(id) {
-        const index = state.schedules.findIndex(s => s.id === id);
-        if (index !== -1) {
-            const removed = state.schedules[index];
-            state.schedules.splice(index, 1);
-            showToast(`🗑️ "${removed.activity}" removido.`);
-            saveState();
-        }
-    }
-
-    function completeSchedule(id) {
-        const item = state.schedules.find(s => s.id === id);
-        if (!item) return;
-        
-        addXP(30);
-        state.user.streak += 1;
-        
-        const index = state.schedules.findIndex(s => s.id === id);
-        if (index !== -1) state.schedules.splice(index, 1);
-        
-        showToast(`🎉 "${item.activity}" concluído! +30 XP, streak +1`);
-        saveState();
-    }
-
-    function addXP(amount) {
-        state.user.xp += amount;
-        while (state.user.xp >= (state.user.level * 100)) {
-            state.user.xp -= state.user.level * 100;
-            state.user.level += 1;
-            showToast(`🎊 UP! Você alcançou o nível ${state.user.level}!`);
-        }
-    }
-
-    function resetUser() {
-        if (confirm('⚠️ Deseja reiniciar sua jornada? Todos os dados serão perdidos!')) {
-            state.user = { name: 'Aventureiro', level: 1, xp: 0, streak: 0 };
-            state.schedules = [];
-            showToast('🔄 Jornada reiniciada. Boa sorte!');
-            saveState();
-        }
-    }
-
-    async function syncWithNeo4j() {
-        if (!neo4jConnected) {
-            showToast('⚠️ Neo4j não conectado. Reconectando...');
-            await connectNeo4j();
-            if (neo4jConnected) {
-                await loadState();
-                showToast('✅ Sincronizado com Neo4j!');
-            } else {
-                showToast('❌ Falha ao conectar com Neo4j');
-            }
-            return;
-        }
-
-        showToast('🔄 Sincronizando com Neo4j...');
-        await saveToNeo4j();
-        await loadFromNeo4j();
-        render();
-        showToast('✅ Sincronização concluída!');
-    }
-
-    // ==================== TOAST ====================
-    function showToast(msg) {
-        toastMessage.innerHTML = msg;
-        toastMessage.style.display = 'block';
-        clearTimeout(toastMessage._timeout);
-        toastMessage._timeout = setTimeout(() => {
-            toastMessage.style.display = 'none';
-        }, 4000);
-    }
-
-    // ==================== EVENT LISTENERS ====================
-    document.getElementById('addScheduleBtn').addEventListener('click', () => {
-        const day = document.getElementById('daySelect').value;
-        const time = document.getElementById('timeInput').value;
-        const activity = document.getElementById('activityInput').value.trim() || 'Atividade';
-        addSchedule(day, time, activity);
+        html += `
+            <div class="schedule-item ${item.status || ''}">
+                <div class="schedule-info">
+                    <span class="schedule-day"><i class="fas fa-calendar-day"></i> ${item.day}</span>
+                    <span class="schedule-time"><i class="far fa-clock"></i> ${item.time}</span>
+                    <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
+                    <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
+                    ${item.justification ? `<span style="font-size:0.7rem;color:#9aa7c7;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
+                </div>
+            </div>
+        `;
     });
+    reportList.innerHTML = html;
+}
 
-    document.getElementById('resetUserBtn').addEventListener('click', resetUser);
-    document.getElementById('syncBtn').addEventListener('click', syncWithNeo4j);
+// ==================== GERENCIAMENTO DE USUÁRIOS ====================
+async function listUsers() {
+    if (!neo4jConnected || !driver) return [];
+    const session = driver.session({ database: NEO4J_DATABASE });
+    try {
+        const result = await session.run(
+            `MATCH (u:User) RETURN u.name as name, u.isAdmin as isAdmin ORDER BY u.name`
+        );
+        return result.records.map(record => ({
+            name: record.get('name'),
+            isAdmin: record.get('isAdmin') === true || record.get('isAdmin') === 'true'
+        }));
+    } catch (error) {
+        console.error('Erro ao listar usuários:', error);
+        return [];
+    } finally {
+        await session.close();
+    }
+}
 
-    // Enter key no input de atividade
-    document.getElementById('activityInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            document.getElementById('addScheduleBtn').click();
+async function createUser(username, password, isAdmin = false) {
+    if (!neo4jConnected || !driver) {
+        showToast('⚠️ Banco não disponível');
+        return false;
+    }
+    if (!username || !password) {
+        showToast('⚠️ Preencha usuário e senha');
+        return false;
+    }
+
+    const session = driver.session({ database: NEO4J_DATABASE });
+    try {
+        const checkResult = await session.run(
+            `MATCH (u:User {name: $username}) RETURN u`,
+            { username }
+        );
+        if (checkResult.records.length > 0) {
+            showToast('❌ Usuário já existe!');
+            return false;
         }
-    });
 
-    // ==================== INICIALIZAÇÃO ====================
-    async function init() {
+        await session.run(
+            `CREATE (u:User {
+                name: $username,
+                password: $password,
+                isAdmin: $isAdmin,
+                level: 1,
+                xp: 0,
+                streak: 0
+            })`,
+            { username, password, isAdmin: isAdmin ? 'true' : 'false' }
+        );
+
+        showToast(`✅ Usuário "${username}" criado!`);
+        return true;
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        showToast('❌ Erro ao criar usuário');
+        return false;
+    } finally {
+        await session.close();
+    }
+}
+
+async function deleteUser(username) {
+    if (username === 'David') {
+        showToast('⚠️ Não pode deletar o admin principal!');
+        return false;
+    }
+    if (username === currentUser.username) {
+        showToast('⚠️ Não pode deletar seu próprio usuário!');
+        return false;
+    }
+
+    const session = driver.session({ database: NEO4J_DATABASE });
+    try {
+        await session.run(
+            `MATCH (u:User {name: $username}) DETACH DELETE u`,
+            { username }
+        );
+        showToast(`🗑️ Usuário "${username}" removido!`);
+        return true;
+    } catch (error) {
+        console.error('Erro ao deletar:', error);
+        showToast('❌ Erro ao deletar usuário');
+        return false;
+    } finally {
+        await session.close();
+    }
+}
+
+async function refreshUserList() {
+    if (!currentUser || !currentUser.isAdmin) return;
+    const users = await listUsers();
+    
+    if (users.length === 0) {
+        userList.innerHTML = '<div style="text-align:center;padding:1rem;color:#6a7b9e;">Nenhum usuário</div>';
+        return;
+    }
+
+    let html = '';
+    users.forEach(u => {
+        const isCurrent = u.name === currentUser.username;
+        html += `
+            <div class="user-item">
+                <div class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span>${u.name}</span>
+                    ${isCurrent ? '<span style="color:#fbbf24;font-size:0.7rem;"> (você)</span>' : ''}
+                    <span class="user-role ${u.isAdmin ? 'admin' : ''}">
+                        ${u.isAdmin ? '👑 Admin' : '👤 Usuário'}
+                    </span>
+                </div>
+                ${!isCurrent && u.name !== 'David' ? `
+                    <button class="btn btn-danger btn-sm" onclick="handleDeleteUser('${u.name}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                ` : ''}
+                ${u.name === 'David' ? '<span style="font-size:0.7rem;color:#6a7b9e;"><i class="fas fa-crown" style="color:#fbbf24;"></i> Principal</span>' : ''}
+            </div>
+        `;
+    });
+    userList.innerHTML = html;
+}
+
+window.handleDeleteUser = async (username) => {
+    if (confirm(`Deletar "${username}"?`)) {
+        await deleteUser(username);
+        await refreshUserList();
+    }
+};
+
+// ==================== UI HELPERS ====================
+function showToast(msg) {
+    toastMessage.innerHTML = msg;
+    toastMessage.style.display = 'block';
+    clearTimeout(toastMessage._timeout);
+    toastMessage._timeout = setTimeout(() => {
+        toastMessage.style.display = 'none';
+    }, 4000);
+}
+
+function showApp() {
+    loginPage.style.display = 'none';
+    appContainer.style.display = 'block';
+    render();
+}
+
+function showLogin() {
+    loginPage.style.display = 'flex';
+    appContainer.style.display = 'none';
+    currentUser = null;
+}
+
+// ==================== EVENT LISTENERS ====================
+// Login
+loginBtn.addEventListener('click', async () => {
+    const username = loginUser.value.trim();
+    const password = loginPass.value.trim();
+
+    if (!username || !password) {
+        loginError.style.display = 'block';
+        loginError.textContent = '⚠️ Preencha usuário e senha!';
+        return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+
+    const success = await authenticateUser(username, password);
+    
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+
+    if (success) {
+        showApp();
+        showToast(`👋 Bem-vindo, ${username}!`);
+        manageUsersBtn.style.display = currentUser.isAdmin ? 'inline-flex' : 'none';
+    }
+});
+
+loginUser.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+loginPass.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+
+logoutBtn.addEventListener('click', () => {
+    if (confirm('Deseja sair?')) {
+        showLogin();
+        showToast('👋 Até logo!');
+    }
+});
+
+// Tabs
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'tab-calendar') renderCalendar();
+        if (btn.dataset.tab === 'tab-reports') renderReport();
+    });
+});
+
+// Add Schedule
+document.getElementById('addScheduleBtn').addEventListener('click', () => {
+    const day = document.getElementById('daySelect').value;
+    const time = document.getElementById('timeInput').value;
+    const activity = document.getElementById('activityInput').value.trim() || 'Atividade';
+    addSchedule(day, time, activity);
+});
+
+// Calendar Navigation
+document.getElementById('prevMonth').addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar();
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    renderCalendar();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+    const today = new Date();
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    renderCalendar();
+});
+
+// Reports
+document.getElementById('applyReportBtn').addEventListener('click', renderReport);
+document.getElementById('reportPeriod').addEventListener('change', renderReport);
+document.getElementById('reportStatus').addEventListener('change', renderReport);
+
+document.getElementById('exportReportBtn').addEventListener('click', () => {
+    let text = 'RELATÓRIO TIMEQUEST\n';
+    text += `Data: ${new Date().toLocaleDateString()}\n`;
+    text += `${'='.repeat(40)}\n\n`;
+    text += `Total: ${reportTotal.textContent}\n`;
+    text += `Concluídos: ${reportCompleted.textContent}\n`;
+    text += `Não Cumpridos: ${reportFailed.textContent}\n`;
+    text += `Pendentes: ${reportPending.textContent}\n\n`;
+    text += `${'='.repeat(40)}\n\n`;
+    
+    const filtered = getFilteredSchedules();
+    filtered.forEach(s => {
+        const statusLabel = s.status === 'completed' ? '✅ Concluído' : 
+                           s.status === 'failed' ? '❌ Não cumprido' : '⏳ Pendente';
+        text += `${s.day} ${s.time} - ${s.activity} (${statusLabel})`;
+        if (s.justification) text += ` - Justificativa: ${s.justification}`;
+        text += '\n';
+    });
+    
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_timequest_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+function getFilteredSchedules() {
+    const statusFilter = document.getElementById('reportStatus').value;
+    const periodFilter = document.getElementById('reportPeriod').value;
+    
+    let filtered = [...state.schedules];
+    if (statusFilter !== 'all') {
+        filtered = filtered.filter(s => s.status === statusFilter);
+    }
+    if (periodFilter === 'week') {
+        const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        const weekDays = dayMap.map((_, i) => {
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
+            return dayMap[d.getDay()];
+        });
+        filtered = filtered.filter(s => weekDays.includes(s.day));
+    } else if (periodFilter === 'month') {
+        const now = new Date();
+        const monthDaysList = [];
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(now.getFullYear(), now.getMonth(), d);
+            monthDaysList.push(['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][date.getDay()]);
+        }
+        filtered = filtered.filter(s => monthDaysList.includes(s.day));
+    }
+    return filtered;
+}
+
+// Justify Modal
+closeJustifyModal.addEventListener('click', () => {
+    justifyModal.classList.remove('active');
+    pendingJustifyId = null;
+});
+cancelJustifyBtn.addEventListener('click', () => {
+    justifyModal.classList.remove('active');
+    pendingJustifyId = null;
+});
+confirmJustifyBtn.addEventListener('click', confirmJustify);
+justifyModal.addEventListener('click', (e) => {
+    if (e.target === justifyModal) {
+        justifyModal.classList.remove('active');
+        pendingJustifyId = null;
+    }
+});
+
+// User Modal
+manageUsersBtn.addEventListener('click', async () => {
+    if (!currentUser || !currentUser.isAdmin) {
+        showToast('⚠️ Apenas administradores!');
+        return;
+    }
+    userModal.classList.add('active');
+    await refreshUserList();
+});
+closeUserModal.addEventListener('click', () => {
+    userModal.classList.remove('active');
+});
+userModal.addEventListener('click', (e) => {
+    if (e.target === userModal) userModal.classList.remove('active');
+});
+createUserBtn.addEventListener('click', async () => {
+    const username = newUsername.value.trim();
+    const password = newPassword.value.trim();
+    if (!username || !password) {
+        showToast('⚠️ Preencha todos os campos!');
+        return;
+    }
+    const success = await createUser(username, password, false);
+    if (success) {
+        newUsername.value = '';
+        newPassword.value = '';
+        await refreshUserList();
+    }
+});
+
+// ==================== INICIALIZAÇÃO ====================
+async function init() {
+    await connectNeo4j();
+    
+    if (neo4jConnected) {
+        const session = driver.session({ database: NEO4J_DATABASE });
         try {
-            // Conectar ao Neo4j
-            await connectNeo4j();
-            
-            // Carregar dados
-            await loadState();
-            
-            // Se conectado ao Neo4j, sincronizar periodicamente
-            if (neo4jConnected) {
-                setInterval(() => {
-                    if (!isLoading) {
-                        saveToNeo4j().catch(() => {});
-                    }
-                }, 30000); // Sync a cada 30 segundos
+            const result = await session.run(
+                `MATCH (u:User {name: 'David'}) RETURN u`
+            );
+            if (result.records.length === 0) {
+                await session.run(
+                    `CREATE (u:User {
+                        name: 'David',
+                        password: 'Tottenam0724',
+                        isAdmin: 'true',
+                        level: 5,
+                        xp: 500,
+                        streak: 10
+                    })`
+                );
+                console.log('👑 Usuário admin criado!');
             }
         } catch (error) {
-            console.error('Erro na inicialização:', error);
-            showToast('⚠️ Erro ao iniciar: ' + error.message);
+            console.error('Erro ao criar admin:', error);
+        } finally {
+            await session.close();
         }
     }
 
-    // Inicializar quando a página carregar
-    document.addEventListener('DOMContentLoaded', init);
+    showLogin();
+    loginStatus.innerHTML = neo4jConnected ? 
+        '<i class="fas fa-check-circle" style="color:#10b981;"></i> Conectado ao Neo4j' :
+        '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> Offline';
+}
 
-    // Expor funções para onclick (global)
-    window.deleteSchedule = deleteSchedule;
-    window.completeSchedule = completeSchedule;
-    window.addSchedule = addSchedule;
-    window.syncWithNeo4j = syncWithNeo4j;
+document.addEventListener('DOMContentLoaded', init);
 
-    console.log('🚀 TimeQuest iniciado!');
-    console.log(`📡 Neo4j URI: ${NEO4J_URI}`);
-    console.log(`👤 Username: ${NEO4J_USERNAME}`);
+// Expor funções
+window.deleteSchedule = deleteSchedule;
+window.markCompleted = markCompleted;
+window.openJustifyModal = openJustifyModal;
+window.confirmJustify = confirmJustify;
+
+console.log('🚀 TimeQuest iniciado!');
 </script>
 </body>
 </html>
