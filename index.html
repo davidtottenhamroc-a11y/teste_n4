@@ -6,7 +6,7 @@
     <title>TimeQuest · Sistema Completo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/neo4j-driver@5.15.0/lib/browser/neo4j-web.min.js"></script>
     <style>
@@ -15,9 +15,10 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(145deg, #0b0e1a 0%, #141b2b 100%);
+            background: #0a0e1a;
             min-height: 100vh;
             color: #e8edf5;
         }
@@ -31,97 +32,135 @@
             padding: 1rem;
         }
         .login-box {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 40px;
-            padding: 3rem 2.5rem;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            background: linear-gradient(145deg, #111827, #0f172a);
+            border-radius: 32px;
+            padding: 2.5rem 2rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
         }
         .login-box .logo {
             text-align: center;
             margin-bottom: 2rem;
         }
-        .login-box .logo i {
-            font-size: 3rem;
+        .login-box .logo .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(251, 191, 36, 0.15);
+            margin-bottom: 1rem;
+        }
+        .login-box .logo .logo-icon i {
+            font-size: 2.2rem;
             color: #fbbf24;
-            margin-bottom: 0.5rem;
         }
         .login-box .logo h1 {
             font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -1px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .login-box .logo p {
-            color: #9aa7c7;
-            font-size: 0.9rem;
+            color: #6b7fa0;
+            font-size: 0.95rem;
             margin-top: 4px;
         }
-        .login-box .form-group {
-            margin-bottom: 1.2rem;
+        .login-box .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 40px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.8rem;
+            color: #6b7fa0;
         }
+        .login-box .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .login-box .status-dot.online { background: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
+        .login-box .status-dot.offline { background: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
+        .login-box .status-dot.connecting { background: #fbbf24; box-shadow: 0 0 12px rgba(251, 191, 36, 0.3); animation: pulse-dot 1s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        
+        .login-box .login-error {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 0.7rem 1rem;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .login-box .login-error.show { display: block; }
+        .login-box .form-group { margin-bottom: 1.2rem; }
         .login-box .form-group label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #9aa7c7;
+            letter-spacing: 0.8px;
+            color: #6b7fa0;
             margin-bottom: 6px;
         }
         .login-box .form-group input {
             width: 100%;
-            background: #1b253b;
-            border: 1px solid #2d3a5a;
-            padding: 0.8rem 1.2rem;
-            border-radius: 30px;
-            color: white;
+            background: #1a2338;
+            border: 1px solid #2a3652;
+            padding: 0.85rem 1.2rem;
+            border-radius: 16px;
+            color: #e8edf5;
             font-size: 1rem;
             font-weight: 500;
             outline: none;
-            transition: 0.2s;
+            transition: 0.25s;
         }
         .login-box .form-group input:focus {
             border-color: #fbbf24;
-            box-shadow: 0 0 0 3px #fbbf2420;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
         }
         .login-box .btn-login {
             width: 100%;
-            background: #fbbf24;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
             color: #0b0e1a;
             padding: 0.9rem;
-            border-radius: 40px;
+            border-radius: 16px;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             border: none;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.25s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
         .login-box .btn-login:hover {
-            background: #fcd34d;
             transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
         }
-        .login-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            padding: 0.8rem 1.2rem;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            display: none;
-            text-align: center;
-        }
-        .login-status {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #6a7b9e;
-            margin-top: 1rem;
+        .login-box .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* ============ APP ============ */
@@ -131,6 +170,8 @@
             margin: 0 auto;
             padding: 1.5rem;
         }
+
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -138,198 +179,127 @@
             flex-wrap: wrap;
             gap: 1rem;
             margin-bottom: 2rem;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(8px);
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 60px;
             border: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .logo {
+        .header .logo {
             display: flex;
             align-items: center;
             gap: 0.6rem;
             font-weight: 700;
-            font-size: 1.8rem;
-            letter-spacing: -0.5px;
+            font-size: 1.5rem;
         }
-        .logo i {
-            color: #fbbf24;
-            font-size: 2rem;
-        }
-        .user-area {
+        .header .logo i { color: #fbbf24; font-size: 1.8rem; }
+        .header .user-area {
             display: flex;
             align-items: center;
-            gap: 1.2rem;
+            gap: 1rem;
             flex-wrap: wrap;
         }
-        .user-badge {
-            background: #2a3349;
-            padding: 0.4rem 1.2rem 0.4rem 1rem;
+        .header .user-badge {
+            background: #1a2338;
+            padding: 0.3rem 1rem 0.3rem 0.8rem;
             border-radius: 40px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: 500;
-            border: 1px solid #3d4863;
+            border: 1px solid #2a3652;
+            font-size: 0.9rem;
         }
-        .level-badge {
-            font-size: 0.8rem;
-            background: #2a3349;
-            padding: 0.2rem 0.8rem;
+        .header .user-badge i { color: #fbbf24; }
+        .header .level-badge {
+            font-size: 0.7rem;
+            background: rgba(251, 191, 36, 0.15);
+            padding: 0.15rem 0.6rem;
             border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            border: 1px solid rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
         }
         .btn {
             border: none;
-            padding: 0.5rem 1.4rem;
+            padding: 0.4rem 1.2rem;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             border: 1px solid transparent;
         }
         .btn-outline {
             background: transparent;
-            border: 1px solid #4b5a7a;
+            border: 1px solid #2a3652;
             color: #e8edf5;
         }
-        .btn-outline:hover {
-            background: #2a3349;
-            border-color: #6b7fa0;
-        }
-        .btn-primary {
-            background: #fbbf24;
-            color: #0b0e1a;
-        }
-        .btn-primary:hover {
-            background: #fcd34d;
-            transform: scale(1.02);
-        }
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #059669;
-        }
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        .btn-warning {
-            background: #f59e0b;
-            color: #0b0e1a;
-        }
-        .btn-warning:hover {
-            background: #d97706;
-        }
-        .btn-sm {
-            padding: 0.3rem 1rem;
-            font-size: 0.8rem;
-        }
+        .btn-outline:hover { background: #1a2338; border-color: #4a5a7a; }
+        .btn-primary { background: #fbbf24; color: #0b0e1a; }
+        .btn-primary:hover { background: #fcd34d; transform: scale(1.02); }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 0.25rem 0.8rem; font-size: 0.75rem; }
         .connection-status {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.75rem;
-            padding: 0.2rem 0.8rem;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.8rem;
             border-radius: 30px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
         }
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             display: inline-block;
         }
-        .status-dot.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
-        .status-dot.offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-        .status-dot.connecting { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        /* Navegação de abas */
-        .tab-nav {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 60px;
-            padding: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            padding: 0.7rem 1.8rem;
-            border-radius: 40px;
-            border: none;
-            background: transparent;
-            color: #9aa7c7;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .tab-btn:hover { color: #e8edf5; background: rgba(255,255,255,0.05); }
-        .tab-btn.active {
-            background: #fbbf24;
-            color: #0b0e1a;
-        }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .status-dot.online { background: #10b981; }
+        .status-dot.offline { background: #ef4444; }
+        .status-dot.connecting { background: #fbbf24; animation: pulse-dot 1s infinite; }
 
         /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1.2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
         .stat-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(4px);
-            padding: 1.2rem 1rem;
-            border-radius: 28px;
-            border: 1px solid #2c3650;
+            padding: 1rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: center;
-            transition: 0.2s;
         }
-        .stat-card:hover {
-            background: #1f2840;
-            border-color: #4b5a7a;
-        }
-        .stat-number {
-            font-size: 2.2rem;
+        .stat-card .stat-number {
+            font-size: 1.8rem;
             font-weight: 700;
             color: #fbbf24;
         }
-        .stat-label {
-            font-size: 0.8rem;
+        .stat-card .stat-label {
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #9aa7c7;
-            margin-top: 4px;
+            letter-spacing: 0.8px;
+            color: #6b7fa0;
+            margin-top: 2px;
         }
-        .stat-icon {
-            font-size: 1.6rem;
-            color: #fbbf24;
-            opacity: 0.7;
-        }
+        .stat-card .stat-icon { font-size: 1.2rem; color: #fbbf24; opacity: 0.5; }
+        .stat-card .stat-number.green { color: #10b981; }
+        .stat-card .stat-number.red { color: #ef4444; }
+
         .xp-bar {
-            height: 6px;
-            background: #262f47;
+            height: 4px;
+            background: #1a2338;
             border-radius: 10px;
-            margin: 1.2rem 0 0.5rem 0;
+            margin: 0.5rem 0 1.5rem 0;
             overflow: hidden;
         }
         .xp-fill {
@@ -340,54 +310,86 @@
             transition: width 0.5s ease;
         }
 
-        /* Formulário */
+        /* Tabs */
+        .tab-nav {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 60px;
+            padding: 0.3rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            border: none;
+            background: transparent;
+            color: #6b7fa0;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab-btn:hover { color: #e8edf5; background: rgba(255,255,255,0.03); }
+        .tab-btn.active { background: #fbbf24; color: #0b0e1a; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Form */
         .form-card {
-            background: #111a2b;
-            border-radius: 30px;
-            padding: 1.8rem 2rem;
-            margin: 2rem 0 1.5rem 0;
-            border: 1px solid #2a3652;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
             display: flex;
             flex-wrap: wrap;
             align-items: flex-end;
-            gap: 1.2rem;
+            gap: 1rem;
         }
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            flex: 1 0 150px;
+            gap: 4px;
+            flex: 1 0 130px;
         }
         .form-group label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #9aa7c7;
+            letter-spacing: 0.8px;
+            color: #6b7fa0;
+            font-weight: 600;
         }
         .form-group input, .form-group select, .form-group textarea {
-            background: #1b253b;
-            border: 1px solid #2d3a5a;
-            padding: 0.7rem 1rem;
-            border-radius: 30px;
-            color: white;
+            background: #1a2338;
+            border: 1px solid #2a3652;
+            padding: 0.6rem 1rem;
+            border-radius: 16px;
+            color: #e8edf5;
             font-weight: 500;
             outline: none;
             transition: 0.2s;
-            font-family: inherit;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus {
             border-color: #fbbf24;
-            box-shadow: 0 0 0 3px #fbbf2420;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
         }
         .form-group textarea {
-            border-radius: 20px;
+            border-radius: 12px;
             resize: vertical;
-            min-height: 60px;
+            min-height: 50px;
         }
         .btn-add {
             background: #fbbf24;
             color: #0b0e1a;
-            padding: 0.7rem 2rem;
+            padding: 0.6rem 1.8rem;
             border-radius: 40px;
             font-weight: 700;
             border: none;
@@ -396,225 +398,171 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            height: 42px;
             margin-left: auto;
         }
         .btn-add:hover { background: #fcd34d; transform: scale(1.02); }
 
-        /* Lista de horários */
+        /* Schedule List */
         .schedule-grid {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
+            gap: 0.6rem;
         }
         .schedule-item {
-            background: #18202f;
-            border-radius: 18px;
-            padding: 1rem 1.8rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 0.8rem 1.2rem;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            border-left: 6px solid #fbbf24;
-            border: 1px solid #2b3652;
+            border-left: 4px solid #fbbf24;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-left-width: 4px;
             transition: 0.15s;
+            gap: 0.5rem;
         }
-        .schedule-item:hover {
-            background: #1f2a40;
-            border-color: #4f6188;
-        }
-        .schedule-item.completed {
-            border-left-color: #10b981;
-            opacity: 0.7;
-        }
-        .schedule-item.completed .schedule-tag {
-            background: #10b98120;
-            color: #10b981;
-            border-color: #10b98140;
-        }
-        .schedule-item.failed {
-            border-left-color: #ef4444;
-            opacity: 0.7;
-        }
-        .schedule-item.failed .schedule-tag {
-            background: #ef444420;
-            color: #ef4444;
-            border-color: #ef444440;
-        }
+        .schedule-item:hover { background: rgba(255, 255, 255, 0.04); }
+        .schedule-item.completed { border-left-color: #10b981; opacity: 0.7; }
+        .schedule-item.failed { border-left-color: #ef4444; opacity: 0.7; }
         .schedule-info {
             display: flex;
             align-items: center;
-            gap: 1.2rem;
+            gap: 1rem;
             flex-wrap: wrap;
+            flex: 1;
         }
-        .schedule-day { font-weight: 700; min-width: 90px; color: #d1dbf5; }
-        .schedule-time { background: #2a3349; padding: 0.2rem 1rem; border-radius: 40px; font-size: 0.9rem; font-weight: 500; }
-        .schedule-tag { padding: 0.2rem 1rem; border-radius: 40px; font-size: 0.8rem; border: 1px solid #fbbf2420; background: #fbbf2410; color: #fbbf24; }
-        .schedule-status { font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 20px; }
-        .schedule-status.completed { background: #10b98120; color: #10b981; }
-        .schedule-status.failed { background: #ef444420; color: #ef4444; }
-        .schedule-status.pending { background: #fbbf2420; color: #fbbf24; }
-        .schedule-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .schedule-day { font-weight: 600; min-width: 80px; color: #d1dbf5; font-size: 0.9rem; }
+        .schedule-time { background: #1a2338; padding: 0.15rem 0.8rem; border-radius: 30px; font-size: 0.8rem; font-weight: 500; border: 1px solid #2a3652; }
+        .schedule-tag { padding: 0.15rem 0.8rem; border-radius: 30px; font-size: 0.75rem; background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.1); }
+        .schedule-status { font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 20px; font-weight: 500; }
+        .schedule-status.completed { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .schedule-status.failed { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .schedule-status.pending { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+        .schedule-actions { display: flex; gap: 4px; }
         .btn-icon {
             background: transparent;
             border: none;
-            color: #8b9ac0;
-            font-size: 1.1rem;
-            padding: 6px 10px;
-            border-radius: 30px;
+            color: #6b7fa0;
+            font-size: 1rem;
+            padding: 4px 8px;
+            border-radius: 20px;
             transition: 0.15s;
             cursor: pointer;
         }
-        .btn-icon:hover { background: #2d3a57; color: #fbbf24; }
-        .btn-icon.success:hover { color: #10b981; background: #10b98120; }
-        .btn-icon.danger:hover { color: #f87171; background: #3a1f2a; }
+        .btn-icon:hover { background: rgba(255,255,255,0.05); color: #fbbf24; }
+        .btn-icon.success:hover { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .btn-icon.danger:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
         .empty-state {
             text-align: center;
-            padding: 3rem 1rem;
-            color: #6d7fa3;
+            padding: 2rem 1rem;
+            color: #4a5a7a;
         }
-        .empty-state i { font-size: 3rem; margin-bottom: 0.8rem; opacity: 0.5; }
+        .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.4; }
 
-        /* ============ CALENDÁRIO ============ */
+        /* Calendar */
         .calendar-container {
-            background: #111a2b;
-            border-radius: 30px;
-            padding: 2rem;
-            border: 1px solid #2a3652;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
-        .calendar-header h2 {
-            font-size: 1.5rem;
-            color: #fbbf24;
-        }
-        .calendar-nav {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .calendar-header h2 { font-size: 1.2rem; color: #fbbf24; }
+        .calendar-nav { display: flex; gap: 0.3rem; }
         .calendar-nav button {
-            background: #1b253b;
-            border: 1px solid #2d3a5a;
+            background: #1a2338;
+            border: 1px solid #2a3652;
             color: #e8edf5;
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
             cursor: pointer;
             transition: 0.2s;
+            font-size: 0.8rem;
         }
-        .calendar-nav button:hover {
-            background: #2d3a5a;
-            border-color: #fbbf24;
-        }
+        .calendar-nav button:hover { background: #2a3652; border-color: #fbbf24; }
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
+            gap: 0.3rem;
         }
         .calendar-day-header {
             text-align: center;
             font-weight: 600;
-            color: #9aa7c7;
-            font-size: 0.8rem;
-            padding: 0.5rem;
+            color: #4a5a7a;
+            font-size: 0.65rem;
+            padding: 0.3rem;
             text-transform: uppercase;
         }
         .calendar-day {
-            background: #1b253b;
-            border-radius: 16px;
-            padding: 0.8rem 0.5rem;
-            min-height: 80px;
-            border: 1px solid #2d3a5a;
-            cursor: pointer;
+            background: #1a2338;
+            border-radius: 12px;
+            padding: 0.4rem;
+            min-height: 60px;
+            border: 1px solid #2a3652;
             transition: 0.2s;
             position: relative;
         }
-        .calendar-day:hover {
-            border-color: #fbbf24;
-            background: #242f4a;
-        }
-        .calendar-day .day-number {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 4px;
-        }
-        .calendar-day .day-events {
-            font-size: 0.7rem;
-            color: #9aa7c7;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .calendar-day .day-events .event {
-            padding: 2px 6px;
-            border-radius: 10px;
-            background: #fbbf2410;
-            color: #fbbf24;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.65rem;
-        }
-        .calendar-day .day-events .event.completed { background: #10b98120; color: #10b981; }
-        .calendar-day .day-events .event.failed { background: #ef444420; color: #ef4444; }
+        .calendar-day:hover { border-color: #fbbf24; }
+        .calendar-day .day-number { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+        .calendar-day .day-events { font-size: 0.6rem; color: #6b7fa0; display: flex; flex-direction: column; gap: 1px; }
+        .calendar-day .day-events .event { padding: 1px 4px; border-radius: 8px; background: rgba(251, 191, 36, 0.08); color: #fbbf24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.55rem; }
+        .calendar-day .day-events .event.completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .calendar-day .day-events .event.failed { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
         .calendar-day.other-month { opacity: 0.3; }
-        .calendar-day.today { border-color: #fbbf24; background: #242f4a; }
+        .calendar-day.today { border-color: #fbbf24; background: rgba(251, 191, 36, 0.05); }
         .calendar-day .day-badge {
             position: absolute;
-            top: 4px;
+            top: 2px;
             right: 4px;
-            font-size: 0.6rem;
+            font-size: 0.5rem;
             background: #fbbf24;
             color: #0b0e1a;
-            padding: 1px 6px;
+            padding: 1px 5px;
             border-radius: 10px;
+            font-weight: 700;
         }
 
-        /* ============ RELATÓRIOS ============ */
+        /* Reports */
         .report-filters {
             display: flex;
-            gap: 1rem;
+            gap: 0.8rem;
             flex-wrap: wrap;
             margin-bottom: 1.5rem;
-            background: #111a2b;
-            padding: 1.2rem;
-            border-radius: 30px;
-            border: 1px solid #2a3652;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem 1.2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
             align-items: flex-end;
         }
-        .report-filters .form-group { flex: 1; min-width: 120px; }
+        .report-filters .form-group { flex: 1; min-width: 100px; }
         .report-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
             margin-bottom: 1.5rem;
         }
         .report-stat {
-            background: #1b253b;
-            padding: 1rem;
-            border-radius: 20px;
+            background: #1a2338;
+            padding: 0.8rem;
+            border-radius: 16px;
             text-align: center;
-            border: 1px solid #2d3a5a;
+            border: 1px solid #2a3652;
         }
-        .report-stat .value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fbbf24;
-        }
-        .report-stat .label {
-            font-size: 0.7rem;
-            color: #9aa7c7;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
+        .report-stat .value { font-size: 1.5rem; font-weight: 700; color: #fbbf24; }
+        .report-stat .label { font-size: 0.6rem; color: #6b7fa0; text-transform: uppercase; margin-top: 2px; }
         .report-stat .value.green { color: #10b981; }
         .report-stat .value.red { color: #ef4444; }
         .report-stat .value.yellow { color: #f59e0b; }
 
-        /* ============ MODAL ============ */
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -630,10 +578,10 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: #141b2b;
+            background: #111827;
             border: 1px solid #2a3652;
-            border-radius: 40px;
-            padding: 2.5rem;
+            border-radius: 24px;
+            padding: 2rem;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
@@ -645,22 +593,33 @@
             align-items: center;
             margin-bottom: 1.5rem;
         }
-        .modal-header h2 {
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .modal-header h2 { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
         .modal-header h2 i { color: #fbbf24; }
         .modal-close {
             background: transparent;
             border: none;
-            color: #8b9ac0;
+            color: #6b7fa0;
             font-size: 1.5rem;
             cursor: pointer;
             transition: 0.2s;
         }
-        .modal-close:hover { color: #f87171; transform: rotate(90deg); }
+        .modal-close:hover { color: #ef4444; }
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            background: #1a2338;
+            border-radius: 16px;
+            margin-bottom: 0.4rem;
+            border: 1px solid #2a3652;
+        }
+        .user-item .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-item .user-info i { color: #fbbf24; }
+        .user-item .user-role { font-size: 0.6rem; padding: 0.1rem 0.6rem; border-radius: 12px; background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.1); }
+        .user-item .user-role.admin { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.1); }
+        .form-row { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .form-row .form-group { flex: 1; min-width: 100px; }
 
         /* Toast */
         .toast {
@@ -669,14 +628,14 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 3000;
-            background: rgba(20, 27, 43, 0.95);
-            backdrop-filter: blur(10px);
+            background: #111827;
             border: 1px solid #2a3652;
-            border-left: 6px solid #fbbf24;
-            padding: 0.8rem 1.5rem;
-            border-radius: 40px;
-            color: #d1dbf5;
+            border-left: 4px solid #fbbf24;
+            padding: 0.6rem 1.5rem;
+            border-radius: 16px;
+            color: #e8edf5;
             font-weight: 500;
+            font-size: 0.9rem;
             max-width: 90%;
             box-shadow: 0 8px 30px rgba(0,0,0,0.5);
             display: none;
@@ -685,13 +644,14 @@
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; }
             .user-area { justify-content: space-between; flex-wrap: wrap; }
-            .schedule-item { flex-direction: column; align-items: start; gap: 10px; }
             .form-card { flex-direction: column; align-items: stretch; }
             .btn-add { margin-left: 0; justify-content: center; }
-            .calendar-grid { gap: 0.3rem; }
-            .calendar-day { min-height: 60px; padding: 0.4rem; }
+            .schedule-item { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+            .schedule-actions { justify-content: flex-end; }
+            .calendar-grid { gap: 0.2rem; }
+            .calendar-day { min-height: 50px; padding: 0.2rem; }
             .modal { padding: 1.5rem; }
-            .tab-btn { padding: 0.5rem 1rem; font-size: 0.8rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -701,27 +661,28 @@
 <div id="loginPage" class="login-container">
     <div class="login-box">
         <div class="logo">
-            <i class="fas fa-hourglass-half"></i>
+            <div class="logo-icon"><i class="fas fa-hourglass-half"></i></div>
             <h1>TimeQuest</h1>
             <p>Gerencie seu tempo e evolua!</p>
+        </div>
+        <div class="status-bar">
+            <span class="status-dot connecting" id="loginStatusDot"></span>
+            <span id="loginStatusText">Conectando ao Neo4j...</span>
         </div>
         <div id="loginError" class="login-error">
             <i class="fas fa-exclamation-circle"></i> Usuário ou senha inválidos!
         </div>
         <div class="form-group">
-            <label><i class="fas fa-user"></i> Usuário</label>
+            <label>USUÁRIO</label>
             <input type="text" id="loginUser" placeholder="Digite seu usuário" value="David">
         </div>
         <div class="form-group">
-            <label><i class="fas fa-lock"></i> Senha</label>
+            <label>SENHA</label>
             <input type="password" id="loginPass" placeholder="Digite sua senha" value="Tottenam0724">
         </div>
         <button class="btn-login" id="loginBtn">
             <i class="fas fa-sign-in-alt"></i> Entrar
         </button>
-        <div class="login-status">
-            <i class="fas fa-database"></i> <span id="loginStatus">Conectando ao Neo4j...</span>
-        </div>
     </div>
 </div>
 
@@ -737,7 +698,7 @@
         <div class="user-area">
             <div class="connection-status">
                 <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Conectando...</span>
+                <span id="statusText">Conectado</span>
             </div>
             <button class="btn btn-success btn-sm" id="manageUsersBtn" style="display:none;">
                 <i class="fas fa-users-cog"></i> Usuários
@@ -747,31 +708,31 @@
                 <span id="userNameDisplay">Carregando...</span>
                 <span class="level-badge"><i class="fas fa-star"></i> Nv. <span id="levelDisplay">1</span></span>
             </div>
-            <button class="btn btn-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            <button class="btn btn-outline btn-sm" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
     </header>
 
-    <!-- Stats -->
+    <!-- STATS -->
     <div class="stats-grid">
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-number" id="totalTasks">0</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div><div class="stat-number" id="completedTasks">0</div><div class="stat-label">Concluídos</div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-times-circle" style="color:#ef4444;"></i></div><div class="stat-number" id="failedTasks">0</div><div class="stat-label">Não Cumpridos</div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><div class="stat-number" id="xpCount">0</div><div class="stat-label">XP total</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div><div class="stat-number green" id="completedTasks">0</div><div class="stat-label">Concluídos</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-times-circle" style="color:#ef4444;"></i></div><div class="stat-number red" id="failedTasks">0</div><div class="stat-label">Não Cumpridos</div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><div class="stat-number" id="xpCount">0</div><div class="stat-label">XP Total</div></div>
     </div>
     <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
 
-    <!-- Tabs -->
+    <!-- TABS -->
     <div class="tab-nav">
         <button class="tab-btn active" data-tab="tab-schedule"><i class="fas fa-list"></i> Horários</button>
         <button class="tab-btn" data-tab="tab-calendar"><i class="fas fa-calendar-alt"></i> Calendário</button>
         <button class="tab-btn" data-tab="tab-reports"><i class="fas fa-chart-bar"></i> Relatórios</button>
     </div>
 
-    <!-- ============ TAB 1: HORÁRIOS ============ -->
+    <!-- TAB 1: SCHEDULE -->
     <div id="tab-schedule" class="tab-content active">
         <div class="form-card">
             <div class="form-group">
-                <label><i class="far fa-calendar-alt"></i> Dia</label>
+                <label>DIA</label>
                 <select id="daySelect">
                     <option value="Segunda">Segunda</option>
                     <option value="Terça">Terça</option>
@@ -783,25 +744,26 @@
                 </select>
             </div>
             <div class="form-group">
-                <label><i class="far fa-clock"></i> Horário</label>
+                <label>HORÁRIO</label>
                 <input type="time" id="timeInput" value="09:00">
             </div>
             <div class="form-group">
-                <label><i class="fas fa-tag"></i> Atividade</label>
-                <input type="text" id="activityInput" placeholder="ex: Estudar, Treino" value="Foco">
+                <label>ATIVIDADE</label>
+                <input type="text" id="activityInput" placeholder="ex: Estudar, Treino" value="Estudar">
             </div>
             <button class="btn-add" id="addScheduleBtn"><i class="fas fa-plus-circle"></i> Adicionar</button>
         </div>
 
-        <div class="section-title" style="font-size:1.2rem;font-weight:600;margin:1.5rem 0 1rem 0;display:flex;align-items:center;gap:10px;">
-            <i class="fas fa-list-check" style="color:#fbbf24;"></i> Seus horários
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <h3 style="font-size:1.1rem;font-weight:600;"><i class="fas fa-list-check" style="color:#fbbf24;"></i> Seus horários</h3>
+            <span style="font-size:0.8rem;color:#4a5a7a;" id="scheduleCount">0 registros</span>
         </div>
         <div id="scheduleList" class="schedule-grid">
-            <div class="empty-state"><i class="far fa-clock"></i><p>Carregando...</p></div>
+            <div class="empty-state"><i class="far fa-clock"></i><p>Carregando horários...</p></div>
         </div>
     </div>
 
-    <!-- ============ TAB 2: CALENDÁRIO ============ -->
+    <!-- TAB 2: CALENDAR -->
     <div id="tab-calendar" class="tab-content">
         <div class="calendar-container">
             <div class="calendar-header">
@@ -816,7 +778,7 @@
         </div>
     </div>
 
-    <!-- ============ TAB 3: RELATÓRIOS ============ -->
+    <!-- TAB 3: REPORTS -->
     <div id="tab-reports" class="tab-content">
         <div class="report-filters">
             <div class="form-group">
@@ -836,8 +798,8 @@
                     <option value="failed">Não Cumpridos</option>
                 </select>
             </div>
-            <button class="btn btn-primary" id="applyReportBtn"><i class="fas fa-filter"></i> Aplicar Filtros</button>
-            <button class="btn btn-outline" id="exportReportBtn"><i class="fas fa-download"></i> Exportar</button>
+            <button class="btn btn-primary btn-sm" id="applyReportBtn"><i class="fas fa-filter"></i> Filtrar</button>
+            <button class="btn btn-outline btn-sm" id="exportReportBtn"><i class="fas fa-download"></i> Exportar</button>
         </div>
 
         <div class="report-stats" id="reportStats">
@@ -857,13 +819,13 @@
 <div id="justifyModal" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
-            <h2><i class="fas fa-comment" style="color:#f59e0b;"></i> Justificar Não Cumprimento</h2>
+            <h2><i class="fas fa-comment" style="color:#f59e0b;"></i> Justificar</h2>
             <button class="modal-close" id="closeJustifyModal">&times;</button>
         </div>
-        <p style="color:#9aa7c7;margin-bottom:1rem;">Por que você não conseguiu cumprir esta atividade?</p>
+        <p style="color:#6b7fa0;margin-bottom:1rem;">Por que você não cumpriu esta atividade?</p>
         <div class="form-group">
             <label>Justificativa</label>
-            <textarea id="justifyText" placeholder="Descreva o motivo..." rows="4"></textarea>
+            <textarea id="justifyText" placeholder="Descreva o motivo..." rows="3"></textarea>
         </div>
         <div style="display:flex;gap:0.8rem;margin-top:1rem;">
             <button class="btn btn-danger" id="confirmJustifyBtn"><i class="fas fa-times-circle"></i> Confirmar</button>
@@ -879,30 +841,28 @@
             <h2><i class="fas fa-users-cog"></i> Gerenciar Usuários</h2>
             <button class="modal-close" id="closeUserModal">&times;</button>
         </div>
-        <div style="background:#1b253b;border-radius:30px;padding:1.2rem;margin-bottom:1.5rem;border:1px solid #2d3a5a;">
-            <h4 style="margin-bottom:0.8rem;color:#fbbf24;"><i class="fas fa-user-plus"></i> Criar Novo Usuário</h4>
-            <div class="form-row" style="display:flex;gap:0.8rem;flex-wrap:wrap;">
-                <div class="form-group" style="flex:1;min-width:120px;">
+        <div style="background:#1a2338;border-radius:16px;padding:1rem;margin-bottom:1.5rem;border:1px solid #2a3652;">
+            <h4 style="margin-bottom:0.8rem;color:#fbbf24;font-size:0.9rem;"><i class="fas fa-user-plus"></i> Novo Usuário</h4>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Usuário</label>
                     <input type="text" id="newUsername" placeholder="Nome">
                 </div>
-                <div class="form-group" style="flex:1;min-width:120px;">
+                <div class="form-group">
                     <label>Senha</label>
                     <input type="text" id="newPassword" placeholder="Senha">
                 </div>
                 <div class="form-group" style="flex:0 0 auto;">
                     <label>&nbsp;</label>
-                    <button class="btn btn-success" id="createUserBtn" style="padding:0.7rem 1.5rem;">
+                    <button class="btn btn-success" id="createUserBtn" style="padding:0.5rem 1.2rem;">
                         <i class="fas fa-plus"></i> Criar
                     </button>
                 </div>
             </div>
         </div>
-        <h4 style="margin-bottom:0.8rem;color:#9aa7c7;"><i class="fas fa-list"></i> Usuários</h4>
-        <div id="userList" class="user-list">
-            <div style="text-align:center;padding:1rem;color:#6a7b9e;">
-                <i class="fas fa-spinner fa-spin"></i> Carregando...
-            </div>
+        <h4 style="margin-bottom:0.8rem;color:#6b7fa0;font-size:0.9rem;">Usuários Cadastrados</h4>
+        <div id="userList">
+            <div style="text-align:center;padding:1rem;color:#4a5a7a;"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
         </div>
     </div>
 </div>
@@ -921,11 +881,9 @@ let driver = null;
 let neo4jConnected = false;
 let currentUser = null;
 let state = {
-    user: { name: 'Aventureiro', level: 1, xp: 0, streak: 0 },
-    schedules: [],
-    history: [] // { id, scheduleId, status, date, justification }
+    user: { name: '', level: 1, xp: 0, streak: 0 },
+    schedules: []
 };
-let isLoading = false;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let pendingJustifyId = null;
@@ -938,7 +896,8 @@ const loginUser = document.getElementById('loginUser');
 const loginPass = document.getElementById('loginPass');
 const loginBtn = document.getElementById('loginBtn');
 const loginError = document.getElementById('loginError');
-const loginStatus = document.getElementById('loginStatus');
+const loginStatusText = document.getElementById('loginStatusText');
+const loginStatusDot = document.getElementById('loginStatusDot');
 
 // App
 const logoutBtn = document.getElementById('logoutBtn');
@@ -950,10 +909,10 @@ const failedTasksEl = document.getElementById('failedTasks');
 const xpCountEl = document.getElementById('xpCount');
 const xpFillEl = document.getElementById('xpFill');
 const scheduleListEl = document.getElementById('scheduleList');
+const scheduleCount = document.getElementById('scheduleCount');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const manageUsersBtn = document.getElementById('manageUsersBtn');
-const toastMessage = document.getElementById('toastMessage');
 
 // Tabs
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -984,11 +943,13 @@ const newUsername = document.getElementById('newUsername');
 const newPassword = document.getElementById('newPassword');
 const createUserBtn = document.getElementById('createUserBtn');
 
+// Toast
+const toastMessage = document.getElementById('toastMessage');
+
 // ==================== NEO4J CONEXÃO ====================
 async function connectNeo4j() {
     try {
-        setStatus('connecting', 'Conectando...');
-        loginStatus.textContent = 'Conectando ao Neo4j...';
+        setLoginStatus('connecting', 'Conectando ao Neo4j...');
         
         if (typeof neo4j === 'undefined') {
             throw new Error('Driver Neo4j não carregado');
@@ -1002,16 +963,21 @@ async function connectNeo4j() {
 
         await driver.verifyConnectivity();
         neo4jConnected = true;
+        setLoginStatus('online', 'Conectado ao Neo4j');
         setStatus('online', 'Conectado');
-        loginStatus.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i> Conectado ao Neo4j';
         return true;
     } catch (error) {
         console.error('❌ Erro Neo4j:', error.message);
         neo4jConnected = false;
+        setLoginStatus('offline', 'Falha na conexão');
         setStatus('offline', 'Offline');
-        loginStatus.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> Falha na conexão';
         return false;
     }
+}
+
+function setLoginStatus(status, text) {
+    loginStatusDot.className = 'status-dot ' + status;
+    loginStatusText.textContent = text;
 }
 
 function setStatus(status, text) {
@@ -1022,8 +988,7 @@ function setStatus(status, text) {
 // ==================== AUTENTICAÇÃO ====================
 async function authenticateUser(username, password) {
     if (!neo4jConnected || !driver) {
-        loginError.style.display = 'block';
-        loginError.textContent = '⚠️ Banco de dados não disponível';
+        showLoginError('⚠️ Banco de dados não disponível');
         return false;
     }
 
@@ -1037,8 +1002,7 @@ async function authenticateUser(username, password) {
         );
 
         if (result.records.length === 0) {
-            loginError.style.display = 'block';
-            loginError.textContent = '❌ Usuário não encontrado!';
+            showLoginError('❌ Usuário não encontrado!');
             return false;
         }
 
@@ -1047,8 +1011,7 @@ async function authenticateUser(username, password) {
         const isAdmin = record.get('isAdmin') || false;
 
         if (storedPassword !== password) {
-            loginError.style.display = 'block';
-            loginError.textContent = '❌ Senha incorreta!';
+            showLoginError('❌ Senha incorreta!');
             return false;
         }
 
@@ -1061,17 +1024,25 @@ async function authenticateUser(username, password) {
         };
 
         await loadUserData(username);
-        loginError.style.display = 'none';
+        hideLoginError();
         return true;
 
     } catch (error) {
         console.error('Erro na autenticação:', error);
-        loginError.style.display = 'block';
-        loginError.textContent = '❌ Erro ao autenticar: ' + error.message;
+        showLoginError('❌ Erro ao autenticar');
         return false;
     } finally {
         await session.close();
     }
+}
+
+function showLoginError(msg) {
+    loginError.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+    loginError.classList.add('show');
+}
+
+function hideLoginError() {
+    loginError.classList.remove('show');
 }
 
 async function loadUserData(username) {
@@ -1114,6 +1085,7 @@ async function loadUserData(username) {
             justification: record.get('justification') || ''
         }));
 
+        console.log(`📋 ${state.schedules.length} horários carregados para ${username}`);
         return true;
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -1172,6 +1144,7 @@ async function saveUserData() {
             );
         }
 
+        console.log('💾 Dados salvos com sucesso!');
         return true;
     } catch (error) {
         console.error('Erro ao salvar:', error);
@@ -1192,12 +1165,13 @@ function render() {
     failedTasksEl.textContent = failed;
     xpCountEl.textContent = state.user.xp;
     levelDisplayEl.textContent = state.user.level;
-    userNameDisplay.textContent = currentUser ? currentUser.username : 'Aventureiro';
+    userNameDisplay.textContent = currentUser ? currentUser.username : 'Carregando...';
 
     const xpNeeded = state.user.level * 100;
     const xpProgress = Math.min((state.user.xp % xpNeeded) / xpNeeded * 100, 100);
-    xpFillEl.style.width = Math.max(4, xpProgress) + '%';
+    xpFillEl.style.width = Math.max(2, xpProgress) + '%';
 
+    scheduleCount.textContent = total + ' registros';
     renderScheduleList();
     renderCalendar();
     renderReport();
@@ -1209,10 +1183,8 @@ function renderScheduleList() {
         scheduleListEl.innerHTML = `
             <div class="empty-state">
                 <i class="far fa-clock"></i>
-                <p>Nenhum horário cadastrado ainda.</p>
-                <p style="font-size:0.8rem;margin-top:8px;color:#4a5a7a;">
-                    <i class="fas fa-plus-circle"></i> Adicione seu primeiro horário!
-                </p>
+                <p>Nenhum horário cadastrado.</p>
+                <p style="font-size:0.8rem;color:#4a5a7a;margin-top:4px;">Adicione seu primeiro horário acima!</p>
             </div>
         `;
         return;
@@ -1229,18 +1201,18 @@ function renderScheduleList() {
         html += `
             <div class="schedule-item ${statusClass}">
                 <div class="schedule-info">
-                    <span class="schedule-day"><i class="fas fa-calendar-day"></i> ${item.day}</span>
-                    <span class="schedule-time"><i class="far fa-clock"></i> ${item.time}</span>
-                    <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
+                    <span class="schedule-day">${item.day}</span>
+                    <span class="schedule-time">${item.time}</span>
+                    <span class="schedule-tag">${item.activity}</span>
                     <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
-                    ${item.justification ? `<span style="font-size:0.7rem;color:#9aa7c7;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
+                    ${item.justification ? `<span style="font-size:0.65rem;color:#6b7fa0;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
                 </div>
                 <div class="schedule-actions">
                     ${item.status === 'pending' ? `
-                        <button class="btn-icon success" onclick="markCompleted(${item.id})" title="Marcar como concluído">
+                        <button class="btn-icon success" onclick="markCompleted(${item.id})" title="Concluir">
                             <i class="fas fa-check-circle"></i>
                         </button>
-                        <button class="btn-icon danger" onclick="openJustifyModal(${item.id})" title="Marcar como não cumprido">
+                        <button class="btn-icon danger" onclick="openJustifyModal(${item.id})" title="Não cumprir">
                             <i class="fas fa-times-circle"></i>
                         </button>
                     ` : ''}
@@ -1260,7 +1232,7 @@ function addSchedule(day, time, activity) {
         return;
     }
     
-    const newId = Date.now();
+    const newId = Date.now() + Math.random() * 1000;
     state.schedules.push({ 
         id: newId, 
         day, 
@@ -1306,7 +1278,7 @@ function openJustifyModal(id) {
 function confirmJustify() {
     const justification = justifyText.value.trim();
     if (!justification) {
-        showToast('⚠️ Por favor, insira uma justificativa.');
+        showToast('⚠️ Insira uma justificativa.');
         return;
     }
     
@@ -1327,7 +1299,7 @@ function addXP(amount) {
     while (state.user.xp >= (state.user.level * 100)) {
         state.user.xp -= state.user.level * 100;
         state.user.level += 1;
-        showToast(`🎊 UP! Você alcançou o nível ${state.user.level}!`);
+        showToast(`🎊 UP! Nível ${state.user.level}!`);
     }
 }
 
@@ -1355,24 +1327,25 @@ function renderCalendar() {
     }
 
     // Dias do mês atual
+    const dayMap = { 'Domingo': 0, 'Segunda': 1, 'Terça': 2, 'Quarta': 3, 'Quinta': 4, 'Sexta': 5, 'Sábado': 6 };
+    
     for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
+        const currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
         
         // Buscar eventos do dia
         const dayEvents = state.schedules.filter(s => {
-            const dayMap = { 'Domingo': 0, 'Segunda': 1, 'Terça': 2, 'Quarta': 3, 'Quinta': 4, 'Sexta': 5, 'Sábado': 6 };
-            return s.day && dayMap[s.day] === new Date(currentYear, currentMonth, day).getDay();
+            return s.day && dayMap[s.day] === currentDayOfWeek;
         });
 
         html += `
             <div class="calendar-day ${isToday ? 'today' : ''}">
                 <div class="day-number">${day}</div>
                 <div class="day-events">
-                    ${dayEvents.slice(0, 3).map(e => `
+                    ${dayEvents.slice(0, 2).map(e => `
                         <div class="event ${e.status}">${e.time} ${e.activity}</div>
                     `).join('')}
-                    ${dayEvents.length > 3 ? `<div style="font-size:0.6rem;color:#6a7b9e;">+${dayEvents.length - 3} mais</div>` : ''}
+                    ${dayEvents.length > 2 ? `<div style="font-size:0.5rem;color:#4a5a7a;">+${dayEvents.length - 2}</div>` : ''}
                 </div>
                 ${dayEvents.length > 0 ? `<span class="day-badge">${dayEvents.length}</span>` : ''}
             </div>
@@ -1396,30 +1369,26 @@ function renderReport() {
     
     let filtered = [...state.schedules];
     
-    // Filtrar por status
     if (statusFilter !== 'all') {
         filtered = filtered.filter(s => s.status === statusFilter);
     }
     
-    // Filtrar por período
     if (periodFilter === 'week') {
+        const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const now = new Date();
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
-        // Simples filtro: apenas mostra os 7 dias da semana
-        const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        const weekDays = dayMap.map((_, i) => {
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
             const d = new Date(weekStart);
             d.setDate(weekStart.getDate() + i);
-            return dayMap[d.getDay()];
-        });
+            weekDays.push(dayMap[d.getDay()]);
+        }
         filtered = filtered.filter(s => weekDays.includes(s.day));
     } else if (periodFilter === 'month') {
         const now = new Date();
-        const monthDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-        // Pega os dias do mês atual
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         const monthDaysList = [];
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         for (let d = 1; d <= daysInMonth; d++) {
             const date = new Date(now.getFullYear(), now.getMonth(), d);
             monthDaysList.push(['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][date.getDay()]);
@@ -1427,7 +1396,6 @@ function renderReport() {
         filtered = filtered.filter(s => monthDaysList.includes(s.day));
     }
     
-    // Estatísticas
     const total = filtered.length;
     const completed = filtered.filter(s => s.status === 'completed').length;
     const failed = filtered.filter(s => s.status === 'failed').length;
@@ -1438,12 +1406,11 @@ function renderReport() {
     reportFailed.textContent = failed;
     reportPending.textContent = pending;
     
-    // Lista
     if (filtered.length === 0) {
         reportList.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-chart-bar"></i>
-                <p>Nenhum registro encontrado com os filtros selecionados.</p>
+                <p>Nenhum registro encontrado.</p>
             </div>
         `;
         return;
@@ -1459,11 +1426,11 @@ function renderReport() {
         html += `
             <div class="schedule-item ${item.status || ''}">
                 <div class="schedule-info">
-                    <span class="schedule-day"><i class="fas fa-calendar-day"></i> ${item.day}</span>
-                    <span class="schedule-time"><i class="far fa-clock"></i> ${item.time}</span>
-                    <span class="schedule-tag"><i class="fas fa-tag"></i> ${item.activity}</span>
+                    <span class="schedule-day">${item.day}</span>
+                    <span class="schedule-time">${item.time}</span>
+                    <span class="schedule-tag">${item.activity}</span>
                     <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
-                    ${item.justification ? `<span style="font-size:0.7rem;color:#9aa7c7;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
+                    ${item.justification ? `<span style="font-size:0.65rem;color:#6b7fa0;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
                 </div>
             </div>
         `;
@@ -1567,7 +1534,7 @@ async function refreshUserList() {
     const users = await listUsers();
     
     if (users.length === 0) {
-        userList.innerHTML = '<div style="text-align:center;padding:1rem;color:#6a7b9e;">Nenhum usuário</div>';
+        userList.innerHTML = '<div style="text-align:center;padding:1rem;color:#4a5a7a;">Nenhum usuário</div>';
         return;
     }
 
@@ -1589,7 +1556,7 @@ async function refreshUserList() {
                         <i class="fas fa-trash"></i>
                     </button>
                 ` : ''}
-                ${u.name === 'David' ? '<span style="font-size:0.7rem;color:#6a7b9e;"><i class="fas fa-crown" style="color:#fbbf24;"></i> Principal</span>' : ''}
+                ${u.name === 'David' ? '<span style="font-size:0.6rem;color:#4a5a7a;"><i class="fas fa-crown" style="color:#fbbf24;"></i> Principal</span>' : ''}
             </div>
         `;
     });
@@ -1610,7 +1577,7 @@ function showToast(msg) {
     clearTimeout(toastMessage._timeout);
     toastMessage._timeout = setTimeout(() => {
         toastMessage.style.display = 'none';
-    }, 4000);
+    }, 3000);
 }
 
 function showApp() {
@@ -1632,8 +1599,7 @@ loginBtn.addEventListener('click', async () => {
     const password = loginPass.value.trim();
 
     if (!username || !password) {
-        loginError.style.display = 'block';
-        loginError.textContent = '⚠️ Preencha usuário e senha!';
+        showLoginError('⚠️ Preencha usuário e senha!');
         return;
     }
 
@@ -1668,9 +1634,10 @@ tabBtns.forEach(btn => {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'tab-calendar') renderCalendar();
-        if (btn.dataset.tab === 'tab-reports') renderReport();
+        const tabId = btn.dataset.tab;
+        document.getElementById(tabId).classList.add('active');
+        if (tabId === 'tab-calendar') renderCalendar();
+        if (tabId === 'tab-reports') renderReport();
     });
 });
 
@@ -1680,6 +1647,11 @@ document.getElementById('addScheduleBtn').addEventListener('click', () => {
     const time = document.getElementById('timeInput').value;
     const activity = document.getElementById('activityInput').value.trim() || 'Atividade';
     addSchedule(day, time, activity);
+});
+
+// Enter key on activity input
+document.getElementById('activityInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('addScheduleBtn').click();
 });
 
 // Calendar Navigation
@@ -1706,51 +1678,22 @@ document.getElementById('reportPeriod').addEventListener('change', renderReport)
 document.getElementById('reportStatus').addEventListener('change', renderReport);
 
 document.getElementById('exportReportBtn').addEventListener('click', () => {
-    let text = 'RELATÓRIO TIMEQUEST\n';
-    text += `Data: ${new Date().toLocaleDateString()}\n`;
-    text += `${'='.repeat(40)}\n\n`;
-    text += `Total: ${reportTotal.textContent}\n`;
-    text += `Concluídos: ${reportCompleted.textContent}\n`;
-    text += `Não Cumpridos: ${reportFailed.textContent}\n`;
-    text += `Pendentes: ${reportPending.textContent}\n\n`;
-    text += `${'='.repeat(40)}\n\n`;
-    
-    const filtered = getFilteredSchedules();
-    filtered.forEach(s => {
-        const statusLabel = s.status === 'completed' ? '✅ Concluído' : 
-                           s.status === 'failed' ? '❌ Não cumprido' : '⏳ Pendente';
-        text += `${s.day} ${s.time} - ${s.activity} (${statusLabel})`;
-        if (s.justification) text += ` - Justificativa: ${s.justification}`;
-        text += '\n';
-    });
-    
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `relatorio_timequest_${new Date().toISOString().slice(0,10)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-});
-
-function getFilteredSchedules() {
     const statusFilter = document.getElementById('reportStatus').value;
     const periodFilter = document.getElementById('reportPeriod').value;
     
     let filtered = [...state.schedules];
-    if (statusFilter !== 'all') {
-        filtered = filtered.filter(s => s.status === statusFilter);
-    }
+    if (statusFilter !== 'all') filtered = filtered.filter(s => s.status === statusFilter);
     if (periodFilter === 'week') {
         const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const now = new Date();
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
-        const weekDays = dayMap.map((_, i) => {
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
             const d = new Date(weekStart);
             d.setDate(weekStart.getDate() + i);
-            return dayMap[d.getDay()];
-        });
+            weekDays.push(dayMap[d.getDay()]);
+        }
         filtered = filtered.filter(s => weekDays.includes(s.day));
     } else if (periodFilter === 'month') {
         const now = new Date();
@@ -1762,8 +1705,33 @@ function getFilteredSchedules() {
         }
         filtered = filtered.filter(s => monthDaysList.includes(s.day));
     }
-    return filtered;
-}
+    
+    let text = 'RELATÓRIO TIMEQUEST\n';
+    text += `Data: ${new Date().toLocaleString()}\n`;
+    text += `Usuário: ${currentUser ? currentUser.username : 'N/A'}\n`;
+    text += `${'='.repeat(50)}\n\n`;
+    text += `Total: ${filtered.length}\n`;
+    text += `Concluídos: ${filtered.filter(s => s.status === 'completed').length}\n`;
+    text += `Não Cumpridos: ${filtered.filter(s => s.status === 'failed').length}\n`;
+    text += `Pendentes: ${filtered.filter(s => s.status === 'pending' || !s.status).length}\n\n`;
+    text += `${'='.repeat(50)}\n\n`;
+    
+    filtered.forEach(s => {
+        const statusLabel = s.status === 'completed' ? 'CONCLUÍDO' : 
+                           s.status === 'failed' ? 'NÃO CUMPRIDO' : 'PENDENTE';
+        text += `${s.day} ${s.time} - ${s.activity} [${statusLabel}]`;
+        if (s.justification) text += ` | Justificativa: ${s.justification}`;
+        text += '\n';
+    });
+    
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_timequest_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
 
 // Justify Modal
 closeJustifyModal.addEventListener('click', () => {
@@ -1834,6 +1802,8 @@ async function init() {
                     })`
                 );
                 console.log('👑 Usuário admin criado!');
+            } else {
+                console.log('👤 Usuário David já existe');
             }
         } catch (error) {
             console.error('Erro ao criar admin:', error);
@@ -1843,9 +1813,6 @@ async function init() {
     }
 
     showLogin();
-    loginStatus.innerHTML = neo4jConnected ? 
-        '<i class="fas fa-check-circle" style="color:#10b981;"></i> Conectado ao Neo4j' :
-        '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> Offline';
 }
 
 document.addEventListener('DOMContentLoaded', init);
@@ -1857,6 +1824,7 @@ window.openJustifyModal = openJustifyModal;
 window.confirmJustify = confirmJustify;
 
 console.log('🚀 TimeQuest iniciado!');
+console.log(`📡 Neo4j URI: ${NEO4J_URI}`);
 </script>
 </body>
 </html>
