@@ -14,7 +14,7 @@
     "neo4j",
     "productivity"
   ],
-  "author": "Seu Nome",
+  "author": "David",
   "license": "MIT",
   "devDependencies": {
     "serve": "^14.2.0"
