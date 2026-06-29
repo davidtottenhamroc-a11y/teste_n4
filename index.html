@@ -244,6 +244,8 @@
         .btn-success:hover { background: #059669; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: #f59e0b; color: #0b0e1a; }
+        .btn-warning:hover { background: #d97706; }
         .btn-sm { padding: 0.25rem 0.8rem; font-size: 0.75rem; }
         .connection-status {
             display: inline-flex;
@@ -703,6 +705,9 @@
             <button class="btn btn-success btn-sm" id="manageUsersBtn" style="display:none;">
                 <i class="fas fa-users-cog"></i> Usuários
             </button>
+            <button class="btn btn-warning btn-sm" id="resetSchedulesBtn" title="Resetar todos os horários">
+                <i class="fas fa-undo"></i> Resetar
+            </button>
             <div class="user-badge">
                 <i class="fas fa-user-astronaut"></i>
                 <span id="userNameDisplay">Carregando...</span>
@@ -913,6 +918,7 @@ const scheduleCount = document.getElementById('scheduleCount');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const manageUsersBtn = document.getElementById('manageUsersBtn');
+const resetSchedulesBtn = document.getElementById('resetSchedulesBtn');
 
 // Tabs
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -1023,6 +1029,14 @@ async function authenticateUser(username, password) {
             streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak') || 0
         };
 
+        // Atualizar state.user com os dados do usuário
+        state.user = {
+            name: currentUser.username,
+            level: currentUser.level,
+            xp: currentUser.xp,
+            streak: currentUser.streak
+        };
+
         await loadUserData(username);
         hideLoginError();
         return true;
@@ -1065,6 +1079,7 @@ async function loadUserData(username) {
                 xp: neo4j.isInt(record.get('xp')) ? record.get('xp').toNumber() : record.get('xp') || 0,
                 streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak') || 0
             };
+            console.log('👤 Usuário carregado:', state.user);
         }
 
         // Carregar horários
@@ -1292,6 +1307,14 @@ function confirmJustify() {
     
     justifyModal.classList.remove('active');
     pendingJustifyId = null;
+}
+
+function resetAllSchedules() {
+    if (!confirm('⚠️ Tem certeza que deseja resetar TODOS os horários? Esta ação não pode ser desfeita!')) return;
+    
+    state.schedules = [];
+    showToast('🔄 Todos os horários foram resetados!');
+    saveUserData().then(() => render());
 }
 
 function addXP(amount) {
@@ -1583,6 +1606,11 @@ function showToast(msg) {
 function showApp() {
     loginPage.style.display = 'none';
     appContainer.style.display = 'block';
+    // Forçar atualização imediata dos dados do usuário
+    if (currentUser) {
+        userNameDisplay.textContent = currentUser.username;
+        levelDisplay.textContent = currentUser.level;
+    }
     render();
 }
 
@@ -1627,6 +1655,9 @@ logoutBtn.addEventListener('click', () => {
         showToast('👋 Até logo!');
     }
 });
+
+// Reset Schedules
+resetSchedulesBtn.addEventListener('click', resetAllSchedules);
 
 // Tabs
 tabBtns.forEach(btn => {
@@ -1822,6 +1853,7 @@ window.deleteSchedule = deleteSchedule;
 window.markCompleted = markCompleted;
 window.openJustifyModal = openJustifyModal;
 window.confirmJustify = confirmJustify;
+window.resetAllSchedules = resetAllSchedules;
 
 console.log('🚀 TimeQuest iniciado!');
 console.log(`📡 Neo4j URI: ${NEO4J_URI}`);
