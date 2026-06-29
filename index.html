@@ -390,10 +390,29 @@
             filter: invert(1);
             cursor: pointer;
         }
+        .form-group input[type="time"] {
+            color-scheme: dark;
+        }
+        .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
         .form-group textarea {
             border-radius: 12px;
             resize: vertical;
             min-height: 50px;
+        }
+        .form-group .time-range {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .form-group .time-range span {
+            color: #6b7fa0;
+            font-size: 0.8rem;
+        }
+        .form-group .time-range input {
+            flex: 1;
         }
         .btn-add {
             background: #fbbf24;
@@ -462,7 +481,21 @@
         }
         .schedule-day { font-weight: 600; min-width: 80px; color: #d1dbf5; font-size: 0.9rem; }
         .schedule-date { font-size: 0.75rem; color: #6b7fa0; background: #1a2338; padding: 0.15rem 0.6rem; border-radius: 12px; border: 1px solid #2a3652; }
-        .schedule-time { background: #1a2338; padding: 0.15rem 0.8rem; border-radius: 30px; font-size: 0.8rem; font-weight: 500; border: 1px solid #2a3652; }
+        .schedule-time {
+            background: #1a2338;
+            padding: 0.15rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #2a3652;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .schedule-time .time-separator {
+            color: #4a5a7a;
+            margin: 0 2px;
+        }
         .schedule-tag { padding: 0.15rem 0.8rem; border-radius: 30px; font-size: 0.75rem; background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.1); }
         .schedule-recurrence { font-size: 0.65rem; color: #6b7fa0; background: #1a2338; padding: 0.1rem 0.5rem; border-radius: 12px; border: 1px dashed #2a3652; }
         .schedule-status { font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 20px; font-weight: 500; }
@@ -685,6 +718,7 @@
             .modal { padding: 1.5rem; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .filter-card { flex-direction: column; align-items: stretch; }
+            .form-group .time-range { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -793,7 +827,11 @@
             </div>
             <div class="form-group">
                 <label>HORÁRIO</label>
-                <input type="time" id="timeInput" value="09:00">
+                <div class="time-range">
+                    <input type="time" id="timeStart" value="09:00">
+                    <span>até</span>
+                    <input type="time" id="timeEnd" value="10:00">
+                </div>
             </div>
             <div class="form-group">
                 <label>ATIVIDADE</label>
@@ -980,7 +1018,8 @@ const daySelectGroup = document.getElementById('daySelectGroup');
 const dateSelectGroup = document.getElementById('dateSelectGroup');
 const daySelect = document.getElementById('daySelect');
 const dateSelect = document.getElementById('dateSelect');
-const timeInput = document.getElementById('timeInput');
+const timeStart = document.getElementById('timeStart');
+const timeEnd = document.getElementById('timeEnd');
 const activityInput = document.getElementById('activityInput');
 const filterDate = document.getElementById('filterDate');
 
@@ -1148,10 +1187,11 @@ async function loadUserData(username) {
         // Carregar horários
         const schedulesResult = await session.run(
             `MATCH (u:User {name: $username})-[:HAS_SCHEDULE]->(s:Schedule)
-             RETURN s.id as id, s.day as day, s.date as date, s.time as time, 
+             RETURN s.id as id, s.day as day, s.date as date, 
+                    s.time_start as time_start, s.time_end as time_end,
                     s.activity as activity, s.type as type,
                     s.status as status, s.justification as justification
-             ORDER BY s.date, s.time`,
+             ORDER BY s.date, s.time_start`,
             { username }
         );
 
@@ -1159,7 +1199,8 @@ async function loadUserData(username) {
             id: neo4j.isInt(record.get('id')) ? record.get('id').toNumber() : record.get('id'),
             day: record.get('day') || '',
             date: record.get('date') || '',
-            time: record.get('time'),
+            time_start: record.get('time_start') || '',
+            time_end: record.get('time_end') || '',
             activity: record.get('activity'),
             type: record.get('type') || 'recurring',
             status: record.get('status') || 'pending',
@@ -1208,7 +1249,8 @@ async function saveUserData() {
                     id: $id,
                     day: $day,
                     date: $date,
-                    time: $time,
+                    time_start: $time_start,
+                    time_end: $time_end,
                     activity: $activity,
                     type: $type,
                     status: $status,
@@ -1220,7 +1262,8 @@ async function saveUserData() {
                     id: s.id,
                     day: s.day || '',
                     date: s.date || '',
-                    time: s.time,
+                    time_start: s.time_start || '',
+                    time_end: s.time_end || '',
                     activity: s.activity,
                     type: s.type || 'recurring',
                     status: s.status || 'pending',
@@ -1292,13 +1335,16 @@ function renderScheduleList(schedules) {
         
         const displayDay = item.type === 'single' ? item.date : item.day;
         const typeLabel = item.type === 'single' ? '📅 Único' : '🔄 Recorrente';
+        const timeRange = item.time_start && item.time_end ? 
+            `${item.time_start} <span class="time-separator">→</span> ${item.time_end}` : 
+            item.time_start || '--:--';
         
         html += `
             <div class="schedule-item ${statusClass}">
                 <div class="schedule-info">
                     <span class="schedule-day">${displayDay}</span>
                     <span class="schedule-date">${item.type === 'single' ? '📅 ' + item.date : '🔄 ' + item.day}</span>
-                    <span class="schedule-time">${item.time}</span>
+                    <span class="schedule-time">${timeRange}</span>
                     <span class="schedule-tag">${item.activity}</span>
                     <span class="schedule-recurrence">${typeLabel}</span>
                     <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
@@ -1339,9 +1385,9 @@ function filterSchedules(date) {
     renderScheduleList(filtered);
 }
 
-function addSchedule(day, date, time, activity, type) {
-    if (!time || !activity) {
-        showToast('⚠️ Preencha todos os campos!');
+function addSchedule(day, date, timeStart, timeEnd, activity, type) {
+    if (!timeStart || !activity) {
+        showToast('⚠️ Preencha o horário de início e a atividade!');
         return;
     }
     
@@ -1360,8 +1406,9 @@ function addSchedule(day, date, time, activity, type) {
         id: newId, 
         day: day || '',
         date: date || '',
-        time, 
-        activity,
+        time_start: timeStart,
+        time_end: timeEnd || '',
+        activity, 
         type: type || 'recurring',
         status: 'pending',
         justification: ''
@@ -1486,7 +1533,7 @@ function renderCalendar() {
                 <div class="day-number">${day}</div>
                 <div class="day-events">
                     ${dayEvents.slice(0, 2).map(e => `
-                        <div class="event ${e.status}">${e.time} ${e.activity}</div>
+                        <div class="event ${e.status}">${e.time_start} ${e.activity}</div>
                     `).join('')}
                     ${dayEvents.length > 2 ? `<div style="font-size:0.5rem;color:#4a5a7a;">+${dayEvents.length - 2}</div>` : ''}
                 </div>
@@ -1506,7 +1553,6 @@ function renderCalendar() {
 }
 
 function selectDate(date) {
-    // Mudar para a aba de horários e aplicar filtro
     document.querySelector('.tab-btn[data-tab="tab-schedule"]').click();
     filterDate.value = date;
     filterSchedules(date);
@@ -1554,7 +1600,6 @@ function renderReport() {
                 const sDate = new Date(s.date);
                 return sDate.getMonth() === month && sDate.getFullYear() === year;
             } else {
-                // Para recorrentes, considera todos os dias da semana do mês
                 return true;
             }
         });
@@ -1588,12 +1633,15 @@ function renderReport() {
                                  item.status === 'failed' ? 'failed' : 'pending';
         const displayDay = item.type === 'single' ? item.date : item.day;
         const typeLabel = item.type === 'single' ? '📅 Único' : '🔄 Recorrente';
+        const timeRange = item.time_start && item.time_end ? 
+            `${item.time_start} → ${item.time_end}` : 
+            item.time_start || '--:--';
         
         html += `
             <div class="schedule-item ${item.status || ''}">
                 <div class="schedule-info">
                     <span class="schedule-day">${displayDay}</span>
-                    <span class="schedule-time">${item.time}</span>
+                    <span class="schedule-time">${timeRange}</span>
                     <span class="schedule-tag">${item.activity}</span>
                     <span class="schedule-recurrence">${typeLabel}</span>
                     <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
@@ -1750,14 +1798,11 @@ function showToast(msg) {
 function showApp() {
     loginPage.style.display = 'none';
     appContainer.style.display = 'block';
-    // Forçar atualização imediata dos dados do usuário
     if (currentUser) {
         userNameDisplay.textContent = currentUser.username;
         levelDisplay.textContent = currentUser.level;
-        // Mostrar botão de usuários para admin
         manageUsersBtn.style.display = currentUser.isAdmin ? 'inline-flex' : 'none';
     }
-    // Definir data padrão
     const today = new Date();
     const dateStr = today.toISOString().split('T')[0];
     dateSelect.value = dateStr;
@@ -1846,9 +1891,10 @@ document.getElementById('addScheduleBtn').addEventListener('click', () => {
         date = dateSelect.value;
     }
     
-    const time = timeInput.value;
+    const timeStart = timeStart.value;
+    const timeEnd = timeEnd.value;
     const activity = activityInput.value.trim() || 'Atividade';
-    addSchedule(day, date, time, activity, type);
+    addSchedule(day, date, timeStart, timeEnd, activity, type);
 });
 
 // Enter key on activity input
@@ -1950,7 +1996,10 @@ document.getElementById('exportReportBtn').addEventListener('click', () => {
         const statusLabel = s.status === 'completed' ? 'CONCLUÍDO' : 
                            s.status === 'failed' ? 'NÃO CUMPRIDO' : 'PENDENTE';
         const displayDay = s.type === 'single' ? s.date : s.day;
-        text += `${displayDay} ${s.time} - ${s.activity} [${statusLabel}]`;
+        const timeRange = s.time_start && s.time_end ? 
+            `${s.time_start} → ${s.time_end}` : 
+            s.time_start || '--:--';
+        text += `${displayDay} ${timeRange} - ${s.activity} [${statusLabel}]`;
         if (s.justification) text += ` | Justificativa: ${s.justification}`;
         text += '\n';
     });
