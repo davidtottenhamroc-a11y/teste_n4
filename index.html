@@ -383,6 +383,13 @@
             border-color: #fbbf24;
             box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
         }
+        .form-group input[type="date"] {
+            color-scheme: dark;
+        }
+        .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
         .form-group textarea {
             border-radius: 12px;
             resize: vertical;
@@ -405,6 +412,23 @@
             margin-left: auto;
         }
         .btn-add:hover { background: #fcd34d; transform: scale(1.02); }
+
+        /* Filter by date */
+        .filter-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+        .filter-card .form-group { flex: 1 0 180px; }
+        .filter-card .form-group input[type="date"] {
+            width: 100%;
+        }
 
         /* Schedule List */
         .schedule-grid {
@@ -437,8 +461,10 @@
             flex: 1;
         }
         .schedule-day { font-weight: 600; min-width: 80px; color: #d1dbf5; font-size: 0.9rem; }
+        .schedule-date { font-size: 0.75rem; color: #6b7fa0; background: #1a2338; padding: 0.15rem 0.6rem; border-radius: 12px; border: 1px solid #2a3652; }
         .schedule-time { background: #1a2338; padding: 0.15rem 0.8rem; border-radius: 30px; font-size: 0.8rem; font-weight: 500; border: 1px solid #2a3652; }
         .schedule-tag { padding: 0.15rem 0.8rem; border-radius: 30px; font-size: 0.75rem; background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.1); }
+        .schedule-recurrence { font-size: 0.65rem; color: #6b7fa0; background: #1a2338; padding: 0.1rem 0.5rem; border-radius: 12px; border: 1px dashed #2a3652; }
         .schedule-status { font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 20px; font-weight: 500; }
         .schedule-status.completed { background: rgba(16, 185, 129, 0.15); color: #10b981; }
         .schedule-status.failed { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
@@ -511,6 +537,7 @@
             border: 1px solid #2a3652;
             transition: 0.2s;
             position: relative;
+            cursor: pointer;
         }
         .calendar-day:hover { border-color: #fbbf24; }
         .calendar-day .day-number { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
@@ -530,6 +557,9 @@
             padding: 1px 5px;
             border-radius: 10px;
             font-weight: 700;
+        }
+        .calendar-day .day-badge.recurring {
+            background: #60a5fa;
         }
 
         /* Reports */
@@ -654,6 +684,7 @@
             .calendar-day { min-height: 50px; padding: 0.2rem; }
             .modal { padding: 1.5rem; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .filter-card { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -702,7 +733,7 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Conectado</span>
             </div>
-            <button class="btn btn-success btn-sm" id="manageUsersBtn" style="display:none;">
+            <button class="btn btn-success btn-sm" id="manageUsersBtn">
                 <i class="fas fa-users-cog"></i> Usuários
             </button>
             <button class="btn btn-warning btn-sm" id="resetSchedulesBtn" title="Resetar todos os horários">
@@ -735,9 +766,17 @@
 
     <!-- TAB 1: SCHEDULE -->
     <div id="tab-schedule" class="tab-content active">
+        <!-- Formulário de adição -->
         <div class="form-card">
             <div class="form-group">
-                <label>DIA</label>
+                <label>TIPO</label>
+                <select id="scheduleType">
+                    <option value="recurring">🔄 Recorrente (dias da semana)</option>
+                    <option value="single">📅 Único (data específica)</option>
+                </select>
+            </div>
+            <div class="form-group" id="daySelectGroup">
+                <label>DIA DA SEMANA</label>
                 <select id="daySelect">
                     <option value="Segunda">Segunda</option>
                     <option value="Terça">Terça</option>
@@ -747,6 +786,10 @@
                     <option value="Sábado">Sábado</option>
                     <option value="Domingo">Domingo</option>
                 </select>
+            </div>
+            <div class="form-group" id="dateSelectGroup" style="display:none;">
+                <label>DATA ESPECÍFICA</label>
+                <input type="date" id="dateSelect" value="2026-06-28">
             </div>
             <div class="form-group">
                 <label>HORÁRIO</label>
@@ -759,8 +802,18 @@
             <button class="btn-add" id="addScheduleBtn"><i class="fas fa-plus-circle"></i> Adicionar</button>
         </div>
 
+        <!-- Filtro por data -->
+        <div class="filter-card">
+            <div class="form-group">
+                <label>FILTRAR POR DATA</label>
+                <input type="date" id="filterDate" value="2026-06-28">
+            </div>
+            <button class="btn btn-primary btn-sm" id="filterDateBtn"><i class="fas fa-filter"></i> Filtrar</button>
+            <button class="btn btn-outline btn-sm" id="clearFilterBtn"><i class="fas fa-times"></i> Limpar</button>
+        </div>
+
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-            <h3 style="font-size:1.1rem;font-weight:600;"><i class="fas fa-list-check" style="color:#fbbf24;"></i> Seus horários</h3>
+            <h3 style="font-size:1.1rem;font-weight:600;"><i class="fas fa-list-check" style="color:#fbbf24;"></i> Horários</h3>
             <span style="font-size:0.8rem;color:#4a5a7a;" id="scheduleCount">0 registros</span>
         </div>
         <div id="scheduleList" class="schedule-grid">
@@ -892,6 +945,7 @@ let state = {
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let pendingJustifyId = null;
+let currentFilter = null;
 
 // ==================== DOM ELEMENTS ====================
 // Login
@@ -919,6 +973,16 @@ const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const manageUsersBtn = document.getElementById('manageUsersBtn');
 const resetSchedulesBtn = document.getElementById('resetSchedulesBtn');
+
+// Form
+const scheduleType = document.getElementById('scheduleType');
+const daySelectGroup = document.getElementById('daySelectGroup');
+const dateSelectGroup = document.getElementById('dateSelectGroup');
+const daySelect = document.getElementById('daySelect');
+const dateSelect = document.getElementById('dateSelect');
+const timeInput = document.getElementById('timeInput');
+const activityInput = document.getElementById('activityInput');
+const filterDate = document.getElementById('filterDate');
 
 // Tabs
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -1029,7 +1093,6 @@ async function authenticateUser(username, password) {
             streak: neo4j.isInt(record.get('streak')) ? record.get('streak').toNumber() : record.get('streak') || 0
         };
 
-        // Atualizar state.user com os dados do usuário
         state.user = {
             name: currentUser.username,
             level: currentUser.level,
@@ -1085,17 +1148,20 @@ async function loadUserData(username) {
         // Carregar horários
         const schedulesResult = await session.run(
             `MATCH (u:User {name: $username})-[:HAS_SCHEDULE]->(s:Schedule)
-             RETURN s.id as id, s.day as day, s.time as time, s.activity as activity,
+             RETURN s.id as id, s.day as day, s.date as date, s.time as time, 
+                    s.activity as activity, s.type as type,
                     s.status as status, s.justification as justification
-             ORDER BY s.day, s.time`,
+             ORDER BY s.date, s.time`,
             { username }
         );
 
         state.schedules = schedulesResult.records.map(record => ({
             id: neo4j.isInt(record.get('id')) ? record.get('id').toNumber() : record.get('id'),
-            day: record.get('day'),
+            day: record.get('day') || '',
+            date: record.get('date') || '',
             time: record.get('time'),
             activity: record.get('activity'),
+            type: record.get('type') || 'recurring',
             status: record.get('status') || 'pending',
             justification: record.get('justification') || ''
         }));
@@ -1141,8 +1207,10 @@ async function saveUserData() {
                  CREATE (s:Schedule {
                     id: $id,
                     day: $day,
+                    date: $date,
                     time: $time,
                     activity: $activity,
+                    type: $type,
                     status: $status,
                     justification: $justification
                  })
@@ -1150,9 +1218,11 @@ async function saveUserData() {
                 {
                     username: currentUser.username,
                     id: s.id,
-                    day: s.day,
+                    day: s.day || '',
+                    date: s.date || '',
                     time: s.time,
                     activity: s.activity,
+                    type: s.type || 'recurring',
                     status: s.status || 'pending',
                     justification: s.justification || ''
                 }
@@ -1187,18 +1257,25 @@ function render() {
     xpFillEl.style.width = Math.max(2, xpProgress) + '%';
 
     scheduleCount.textContent = total + ' registros';
-    renderScheduleList();
+    
+    // Aplicar filtro se existir
+    if (currentFilter) {
+        filterSchedules(currentFilter);
+    } else {
+        renderScheduleList(state.schedules);
+    }
+    
     renderCalendar();
     renderReport();
 }
 
-function renderScheduleList() {
-    const items = state.schedules;
+function renderScheduleList(schedules) {
+    const items = schedules || state.schedules;
     if (items.length === 0) {
         scheduleListEl.innerHTML = `
             <div class="empty-state">
                 <i class="far fa-clock"></i>
-                <p>Nenhum horário cadastrado.</p>
+                <p>Nenhum horário encontrado.</p>
                 <p style="font-size:0.8rem;color:#4a5a7a;margin-top:4px;">Adicione seu primeiro horário acima!</p>
             </div>
         `;
@@ -1213,12 +1290,17 @@ function renderScheduleList() {
         const statusBadgeClass = item.status === 'completed' ? 'completed' : 
                                  item.status === 'failed' ? 'failed' : 'pending';
         
+        const displayDay = item.type === 'single' ? item.date : item.day;
+        const typeLabel = item.type === 'single' ? '📅 Único' : '🔄 Recorrente';
+        
         html += `
             <div class="schedule-item ${statusClass}">
                 <div class="schedule-info">
-                    <span class="schedule-day">${item.day}</span>
+                    <span class="schedule-day">${displayDay}</span>
+                    <span class="schedule-date">${item.type === 'single' ? '📅 ' + item.date : '🔄 ' + item.day}</span>
                     <span class="schedule-time">${item.time}</span>
                     <span class="schedule-tag">${item.activity}</span>
+                    <span class="schedule-recurrence">${typeLabel}</span>
                     <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
                     ${item.justification ? `<span style="font-size:0.65rem;color:#6b7fa0;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
                 </div>
@@ -1241,18 +1323,46 @@ function renderScheduleList() {
     scheduleListEl.innerHTML = html;
 }
 
-function addSchedule(day, time, activity) {
-    if (!day || !time || !activity) {
+function filterSchedules(date) {
+    currentFilter = date;
+    const filtered = state.schedules.filter(s => {
+        if (s.type === 'single') {
+            return s.date === date;
+        } else {
+            // Para recorrentes, verifica se o dia da semana corresponde à data
+            const dateObj = new Date(date + 'T00:00:00');
+            const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            const dayName = dayNames[dateObj.getDay()];
+            return s.day === dayName;
+        }
+    });
+    renderScheduleList(filtered);
+}
+
+function addSchedule(day, date, time, activity, type) {
+    if (!time || !activity) {
         showToast('⚠️ Preencha todos os campos!');
+        return;
+    }
+    
+    if (type === 'recurring' && !day) {
+        showToast('⚠️ Selecione um dia da semana!');
+        return;
+    }
+    
+    if (type === 'single' && !date) {
+        showToast('⚠️ Selecione uma data!');
         return;
     }
     
     const newId = Date.now() + Math.random() * 1000;
     state.schedules.push({ 
         id: newId, 
-        day, 
+        day: day || '',
+        date: date || '',
         time, 
         activity,
+        type: type || 'recurring',
         status: 'pending',
         justification: ''
     });
@@ -1313,6 +1423,7 @@ function resetAllSchedules() {
     if (!confirm('⚠️ Tem certeza que deseja resetar TODOS os horários? Esta ação não pode ser desfeita!')) return;
     
     state.schedules = [];
+    currentFilter = null;
     showToast('🔄 Todos os horários foram resetados!');
     saveUserData().then(() => render());
 }
@@ -1354,15 +1465,24 @@ function renderCalendar() {
     
     for (let day = 1; day <= daysInMonth; day++) {
         const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+        const dayName = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][currentDayOfWeek];
         
-        // Buscar eventos do dia
+        // Buscar eventos do dia (recorrentes + únicos)
         const dayEvents = state.schedules.filter(s => {
-            return s.day && dayMap[s.day] === currentDayOfWeek;
+            if (s.type === 'single') {
+                return s.date === dateStr;
+            } else {
+                return s.day === dayName;
+            }
         });
 
+        const hasRecurring = dayEvents.some(s => s.type === 'recurring');
+        const hasSingle = dayEvents.some(s => s.type === 'single');
+
         html += `
-            <div class="calendar-day ${isToday ? 'today' : ''}">
+            <div class="calendar-day ${isToday ? 'today' : ''}" onclick="selectDate('${dateStr}')">
                 <div class="day-number">${day}</div>
                 <div class="day-events">
                     ${dayEvents.slice(0, 2).map(e => `
@@ -1370,7 +1490,7 @@ function renderCalendar() {
                     `).join('')}
                     ${dayEvents.length > 2 ? `<div style="font-size:0.5rem;color:#4a5a7a;">+${dayEvents.length - 2}</div>` : ''}
                 </div>
-                ${dayEvents.length > 0 ? `<span class="day-badge">${dayEvents.length}</span>` : ''}
+                ${dayEvents.length > 0 ? `<span class="day-badge ${hasRecurring ? 'recurring' : ''}">${dayEvents.length}</span>` : ''}
             </div>
         `;
     }
@@ -1385,6 +1505,14 @@ function renderCalendar() {
     calendarGrid.innerHTML = html;
 }
 
+function selectDate(date) {
+    // Mudar para a aba de horários e aplicar filtro
+    document.querySelector('.tab-btn[data-tab="tab-schedule"]').click();
+    filterDate.value = date;
+    filterSchedules(date);
+    showToast(`📅 Filtrando horários para ${date}`);
+}
+
 // ==================== RELATÓRIOS ====================
 function renderReport() {
     const statusFilter = document.getElementById('reportStatus').value;
@@ -1397,26 +1525,39 @@ function renderReport() {
     }
     
     if (periodFilter === 'week') {
-        const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const now = new Date();
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
-        const weekDays = [];
-        for (let i = 0; i < 7; i++) {
-            const d = new Date(weekStart);
-            d.setDate(weekStart.getDate() + i);
-            weekDays.push(dayMap[d.getDay()]);
-        }
-        filtered = filtered.filter(s => weekDays.includes(s.day));
+        const dateStr = weekStart.toISOString().split('T')[0];
+        filtered = filtered.filter(s => {
+            if (s.type === 'single') {
+                const sDate = new Date(s.date);
+                const diff = (sDate - weekStart) / (1000 * 60 * 60 * 24);
+                return diff >= 0 && diff < 7;
+            } else {
+                const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                const weekDays = [];
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(weekStart);
+                    d.setDate(weekStart.getDate() + i);
+                    weekDays.push(dayMap[d.getDay()]);
+                }
+                return weekDays.includes(s.day);
+            }
+        });
     } else if (periodFilter === 'month') {
         const now = new Date();
-        const monthDaysList = [];
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        for (let d = 1; d <= daysInMonth; d++) {
-            const date = new Date(now.getFullYear(), now.getMonth(), d);
-            monthDaysList.push(['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][date.getDay()]);
-        }
-        filtered = filtered.filter(s => monthDaysList.includes(s.day));
+        const month = now.getMonth();
+        const year = now.getFullYear();
+        filtered = filtered.filter(s => {
+            if (s.type === 'single') {
+                const sDate = new Date(s.date);
+                return sDate.getMonth() === month && sDate.getFullYear() === year;
+            } else {
+                // Para recorrentes, considera todos os dias da semana do mês
+                return true;
+            }
+        });
     }
     
     const total = filtered.length;
@@ -1445,13 +1586,16 @@ function renderReport() {
                            item.status === 'failed' ? '❌ Não cumprido' : '⏳ Pendente';
         const statusBadgeClass = item.status === 'completed' ? 'completed' : 
                                  item.status === 'failed' ? 'failed' : 'pending';
+        const displayDay = item.type === 'single' ? item.date : item.day;
+        const typeLabel = item.type === 'single' ? '📅 Único' : '🔄 Recorrente';
         
         html += `
             <div class="schedule-item ${item.status || ''}">
                 <div class="schedule-info">
-                    <span class="schedule-day">${item.day}</span>
+                    <span class="schedule-day">${displayDay}</span>
                     <span class="schedule-time">${item.time}</span>
                     <span class="schedule-tag">${item.activity}</span>
+                    <span class="schedule-recurrence">${typeLabel}</span>
                     <span class="schedule-status ${statusBadgeClass}">${statusLabel}</span>
                     ${item.justification ? `<span style="font-size:0.65rem;color:#6b7fa0;"><i class="fas fa-comment"></i> ${item.justification}</span>` : ''}
                 </div>
@@ -1610,7 +1754,14 @@ function showApp() {
     if (currentUser) {
         userNameDisplay.textContent = currentUser.username;
         levelDisplay.textContent = currentUser.level;
+        // Mostrar botão de usuários para admin
+        manageUsersBtn.style.display = currentUser.isAdmin ? 'inline-flex' : 'none';
     }
+    // Definir data padrão
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    dateSelect.value = dateStr;
+    filterDate.value = dateStr;
     render();
 }
 
@@ -1621,6 +1772,17 @@ function showLogin() {
 }
 
 // ==================== EVENT LISTENERS ====================
+// Tipo de agendamento
+scheduleType.addEventListener('change', function() {
+    if (this.value === 'recurring') {
+        daySelectGroup.style.display = 'block';
+        dateSelectGroup.style.display = 'none';
+    } else {
+        daySelectGroup.style.display = 'none';
+        dateSelectGroup.style.display = 'block';
+    }
+});
+
 // Login
 loginBtn.addEventListener('click', async () => {
     const username = loginUser.value.trim();
@@ -1642,7 +1804,6 @@ loginBtn.addEventListener('click', async () => {
     if (success) {
         showApp();
         showToast(`👋 Bem-vindo, ${username}!`);
-        manageUsersBtn.style.display = currentUser.isAdmin ? 'inline-flex' : 'none';
     }
 });
 
@@ -1669,20 +1830,47 @@ tabBtns.forEach(btn => {
         document.getElementById(tabId).classList.add('active');
         if (tabId === 'tab-calendar') renderCalendar();
         if (tabId === 'tab-reports') renderReport();
+        if (tabId === 'tab-schedule') render();
     });
 });
 
 // Add Schedule
 document.getElementById('addScheduleBtn').addEventListener('click', () => {
-    const day = document.getElementById('daySelect').value;
-    const time = document.getElementById('timeInput').value;
-    const activity = document.getElementById('activityInput').value.trim() || 'Atividade';
-    addSchedule(day, time, activity);
+    const type = scheduleType.value;
+    let day = '';
+    let date = '';
+    
+    if (type === 'recurring') {
+        day = daySelect.value;
+    } else {
+        date = dateSelect.value;
+    }
+    
+    const time = timeInput.value;
+    const activity = activityInput.value.trim() || 'Atividade';
+    addSchedule(day, date, time, activity, type);
 });
 
 // Enter key on activity input
-document.getElementById('activityInput').addEventListener('keypress', (e) => {
+activityInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') document.getElementById('addScheduleBtn').click();
+});
+
+// Filter
+document.getElementById('filterDateBtn').addEventListener('click', () => {
+    const date = filterDate.value;
+    if (date) {
+        filterSchedules(date);
+        showToast(`📅 Filtrado por ${date}`);
+    } else {
+        showToast('⚠️ Selecione uma data para filtrar');
+    }
+});
+
+document.getElementById('clearFilterBtn').addEventListener('click', () => {
+    currentFilter = null;
+    render();
+    showToast('🔄 Filtro removido');
 });
 
 // Calendar Navigation
@@ -1715,26 +1903,37 @@ document.getElementById('exportReportBtn').addEventListener('click', () => {
     let filtered = [...state.schedules];
     if (statusFilter !== 'all') filtered = filtered.filter(s => s.status === statusFilter);
     if (periodFilter === 'week') {
-        const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const now = new Date();
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
-        const weekDays = [];
-        for (let i = 0; i < 7; i++) {
-            const d = new Date(weekStart);
-            d.setDate(weekStart.getDate() + i);
-            weekDays.push(dayMap[d.getDay()]);
-        }
-        filtered = filtered.filter(s => weekDays.includes(s.day));
+        filtered = filtered.filter(s => {
+            if (s.type === 'single') {
+                const sDate = new Date(s.date);
+                const diff = (sDate - weekStart) / (1000 * 60 * 60 * 24);
+                return diff >= 0 && diff < 7;
+            } else {
+                const dayMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                const weekDays = [];
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(weekStart);
+                    d.setDate(weekStart.getDate() + i);
+                    weekDays.push(dayMap[d.getDay()]);
+                }
+                return weekDays.includes(s.day);
+            }
+        });
     } else if (periodFilter === 'month') {
         const now = new Date();
-        const monthDaysList = [];
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        for (let d = 1; d <= daysInMonth; d++) {
-            const date = new Date(now.getFullYear(), now.getMonth(), d);
-            monthDaysList.push(['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][date.getDay()]);
-        }
-        filtered = filtered.filter(s => monthDaysList.includes(s.day));
+        const month = now.getMonth();
+        const year = now.getFullYear();
+        filtered = filtered.filter(s => {
+            if (s.type === 'single') {
+                const sDate = new Date(s.date);
+                return sDate.getMonth() === month && sDate.getFullYear() === year;
+            } else {
+                return true;
+            }
+        });
     }
     
     let text = 'RELATÓRIO TIMEQUEST\n';
@@ -1750,7 +1949,8 @@ document.getElementById('exportReportBtn').addEventListener('click', () => {
     filtered.forEach(s => {
         const statusLabel = s.status === 'completed' ? 'CONCLUÍDO' : 
                            s.status === 'failed' ? 'NÃO CUMPRIDO' : 'PENDENTE';
-        text += `${s.day} ${s.time} - ${s.activity} [${statusLabel}]`;
+        const displayDay = s.type === 'single' ? s.date : s.day;
+        text += `${displayDay} ${s.time} - ${s.activity} [${statusLabel}]`;
         if (s.justification) text += ` | Justificativa: ${s.justification}`;
         text += '\n';
     });
@@ -1854,6 +2054,8 @@ window.markCompleted = markCompleted;
 window.openJustifyModal = openJustifyModal;
 window.confirmJustify = confirmJustify;
 window.resetAllSchedules = resetAllSchedules;
+window.selectDate = selectDate;
+window.filterSchedules = filterSchedules;
 
 console.log('🚀 TimeQuest iniciado!');
 console.log(`📡 Neo4j URI: ${NEO4J_URI}`);
